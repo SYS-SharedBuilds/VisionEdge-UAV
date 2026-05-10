@@ -8,7 +8,7 @@ except ImportError:
     airsim = None
     print("Warning: airsim package not found. Running in simulation-log mode.")
 
-from config import PRIORITY_MAP, FOLLOW_HEIGHT_PCT, DESIRED_BBOX_HEIGHT, CONTROL_GAIN_P, AIRSIM_IP
+from config import PRIORITY_MAP, FOLLOW_HEIGHT_PCT, DESIRED_BBOX_HEIGHT, CONTROL_GAIN_P, AIRSIM_IP, ACTIVATE_AUTONOMOUS
 
 class TargetSelector:
     """Selects the best target based on priority and size"""
@@ -42,13 +42,39 @@ class AirSimController:
         self.autonomous_enabled = True
         
         if airsim:
+            # Connect in a background thread to avoid blocking initialization
+            threading.Thread(target=self._connect_airsim, daemon=True).start()
+
+    def _connect_airsim(self):
+        max_retries = 100
+        retry_delay = 3
+        
+        for attempt in range(max_retries):
             try:
-                self.client = airsim.MultirotorClient(ip=AIRSIM_IP)
-                # We don't call confirmConnection here to avoid blocking initialization
-                # We'll check it in a separate thread if needed
+                print(f"Connecting to AirSim on {AIRSIM_IP} (Attempt {attempt+1}/{max_retries})...")
+                client = airsim.MultirotorClient(ip=AIRSIM_IP)
+                client.confirmConnection()
+                if ACTIVATE_AUTONOMOUS:
+                    print("AirSim Connected. Enabling API Control...")
+                    client.enableApiControl(True)
+                    print("Arming Drone...")
+                    client.armDisarm(True)
+                    print("Taking off...")
+                    client.takeoffAsync().join()
+                    print("Drone is airborne and ready for autonomous control!")
+                else:
+                    print("AirSim Connected in Monitoring Mode. API Control Disabled for Manual Flight.")
+                    client.enableApiControl(False)
+                
+                self.client = client
                 self.connected = True
+                return
             except Exception as e:
-                print(f"AirSim Connection failed: {e}")
+                print(f"AirSim Connection failed: {e}. Retrying in {retry_delay}s...")
+                time.sleep(retry_delay)
+                
+        print("Failed to connect to AirSim after multiple attempts.")
+
                 
     def compute_control(self, target, frame_width, frame_height):
         """

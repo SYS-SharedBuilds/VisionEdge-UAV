@@ -362,6 +362,8 @@ class ObjectDetectorTracker:
         # Track management
         self.persistent_tracks = {} # track_id -> TrackInfo
         self.primary_target_id = None
+        self.frame_lock = threading.Lock()
+        self.current_frame = None
         
         # Load Dataset-Specific Classes
         if DATASET_MODE == 'VISDRONE':
@@ -398,8 +400,16 @@ class ObjectDetectorTracker:
     
     def start_webcam(self, camera_index=0):
         """
-        Start video source (Webcam or File)
+        Start video source (Webcam, File, or AirSim Camera)
         """
+        self.use_airsim = globals().get('USE_AIRSIM_CAMERA', False)
+        
+        if self.use_airsim:
+            print("Configured to use AirSim camera. Waiting for connection in processing thread...")
+            self.cap = None
+            self.is_running = True
+            return
+            
         source = CAMERA_INDEX if USE_WEBCAM else VIDEO_SOURCE
         print(f"Starting video acquisition from: {source}")
         self.cap = cv2.VideoCapture(source)
@@ -410,6 +420,7 @@ class ObjectDetectorTracker:
             self.current_frame = np.zeros((CAMERA_HEIGHT, CAMERA_WIDTH, 3), dtype=np.uint8)
             cv2.putText(self.current_frame, "SIGNAL LOST: NO VIDEO SOURCE", (CAMERA_WIDTH//2-200, CAMERA_HEIGHT//2), 
                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            self.is_running = True # Keep thread alive to serve the placeholder
             return
         
         # Performance tuning for processing
@@ -470,7 +481,7 @@ class ObjectDetectorTracker:
                 # Use modular HUD components
                 self.hud.draw_target(annotated_frame, track_data, is_primary=False)
                 if HUD_SHOW_TRAJECTORY:
-                    self.hud.draw_trajectory(annotated_frame, self.persistent_tracks[track_id], color)
+                    self.hud.draw_trajectory(annotated_frame, self.persistent_tracks[track_id], (150, 150, 150))
         
         # Handle Occlusions (Tracks lost this frame but still in memory)
         current_ids = [t['id'] for t in current_tracks_data]
@@ -521,7 +532,11 @@ class ObjectDetectorTracker:
         Returns:
             processed frame or None if no frame available
         """
+        if not hasattr(self, 'frame_lock'):
+            self.frame_lock = threading.Lock()
         with self.frame_lock:
+            if not hasattr(self, 'current_frame'):
+                return None
             return self.current_frame.copy() if self.current_frame is not None else None
     
     def process_video_stream(self):
@@ -530,21 +545,58 @@ class ObjectDetectorTracker:
         """
         print("Entering surveillance processing mode...")
         
+        import airsim
+        camera_name = globals().get('AIRSIM_CAMERA_NAME', "0")
+        
         while self.is_running:
-            if self.cap is None:
-                time.sleep(0.1)
-                continue
-            
-            ret, frame = self.cap.read()
-            
-            # Auto-loop for video files
-            if not ret and not USE_WEBCAM:
-                self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            if self.use_airsim:
+                # AirSim camera capture
+                if not self.controller.connected or not self.controller.client:
+                    # Serve placeholder while connecting
+                    frame = np.zeros((CAMERA_HEIGHT, CAMERA_WIDTH, 3), dtype=np.uint8)
+                    cv2.putText(frame, "WAITING FOR AIRSIM CONNECTION...", (50, CAMERA_HEIGHT//2), 
+                              cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
+                    with self.frame_lock:
+                        self.current_frame = frame
+                    time.sleep(1.0)
+                    continue
+                
+                try:
+                    # Get uncompressed image from AirSim
+                    responses = self.controller.client.simGetImages([
+                        airsim.ImageRequest(camera_name, airsim.ImageType.Scene, False, False)
+                    ])
+                    response = responses[0]
+                    
+                    if not response.image_data_uint8:
+                        time.sleep(0.1)
+                        continue
+                        
+                    # Convert to numpy array
+                    img1d = np.frombuffer(response.image_data_uint8, dtype=np.uint8) 
+                    frame = img1d.reshape(response.height, response.width, 3)
+                    ret = True
+                except Exception as e:
+                    print(f"AirSim Image Capture Error: {e}")
+                    ret = False
+                    time.sleep(0.5)
+                    continue
+            else:
+                # Standard Webcam/File capture
+                if self.cap is None:
+                    time.sleep(0.1)
+                    continue
+                
                 ret, frame = self.cap.read()
-            
-            if not ret:
-                time.sleep(0.1)
-                continue
+                
+                # Auto-loop for video files
+                if not ret and not USE_WEBCAM:
+                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                    ret, frame = self.cap.read()
+                
+                if not ret:
+                    time.sleep(0.1)
+                    continue
             
             try:
                 # 4K Resolution Downscaling for Performance
@@ -553,9 +605,6 @@ class ObjectDetectorTracker:
                 
                 # Process frame
                 processed_frame = self.detect_and_track(frame)
-                
-                # Double-check initialization: If processed_frame is still just the input
-                # (e.g. tracking is booting up), the HUD will draw on top anyway.
                 
                 with self.frame_lock:
                     self.current_frame = processed_frame
@@ -566,7 +615,8 @@ class ObjectDetectorTracker:
                 print(f"Processing Error: {e}")
                 with self.frame_lock:
                     # Serve the raw frame anyway if tracking crashes to keep the feed alive
-                    self.current_frame = frame
+                    if 'frame' in locals() and frame is not None:
+                        self.current_frame = frame
             
             time.sleep(0.005) # Max performance
         

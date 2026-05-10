@@ -21,9 +21,10 @@ import time
 import atexit
 import signal
 import sys
+import subprocess
 from detect_and_track import initialize_detector, get_detector
 try:
-    from config import HOST, PORT, DEBUG, JPEG_QUALITY, STREAM_FPS, CAMERA_INDEX
+    from config import HOST, PORT, DEBUG, JPEG_QUALITY, STREAM_FPS, CAMERA_INDEX, AUTO_START_SIMULATION, UNREAL_EXECUTABLE_PATH
 except ImportError:
     # Default values if config.py is not available
     HOST = '0.0.0.0'
@@ -32,6 +33,8 @@ except ImportError:
     JPEG_QUALITY = 85
     STREAM_FPS = 30
     CAMERA_INDEX = 0
+    AUTO_START_SIMULATION = False
+    UNREAL_EXECUTABLE_PATH = ""
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -46,6 +49,16 @@ def initialize_app():
     global detector, processing_thread
     
     try:
+        if AUTO_START_SIMULATION and UNREAL_EXECUTABLE_PATH:
+            if os.path.exists(UNREAL_EXECUTABLE_PATH):
+                print(f"Launching Unreal Engine Simulation from: {UNREAL_EXECUTABLE_PATH}")
+                subprocess.Popen([UNREAL_EXECUTABLE_PATH])
+                print("Waiting 10 seconds for simulation to boot...")
+                time.sleep(10)
+            else:
+                print(f"WARNING: Unreal Engine executable not found at {UNREAL_EXECUTABLE_PATH}")
+                print("Please update UNREAL_EXECUTABLE_PATH in config.py or start the simulation manually.")
+
         print("Initializing object detector and tracker...")
         detector = initialize_detector()
         

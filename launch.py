@@ -73,7 +73,9 @@ def install_packages_individually():
         'torch',
         'torchvision',
         'deep-sort-realtime',
-        'scipy'
+        'scipy',
+        'msgpack-rpc-python',
+        'airsim'
     ]
     
     failed_packages = []
@@ -83,9 +85,9 @@ def install_packages_individually():
             print(f"Installing {package}...")
             subprocess.run([sys.executable, '-m', 'pip', 'install', package], 
                           check=True, capture_output=True)
-            print(f"✅ {package} installed successfully")
+            print(f"[OK] {package} installed successfully")
         except subprocess.CalledProcessError:
-            print(f"❌ Failed to install {package}")
+            print(f"[FAIL] Failed to install {package}")
             failed_packages.append(package)
     
     if failed_packages:
@@ -107,7 +109,7 @@ def start_application():
 
 def main():
     """Main launcher function"""
-    print("🎯 YOLOv8 Live Object Detection & Tracking - Launcher")
+    print("YOLOv8 Live Object Detection & Tracking - Launcher")
     print("=" * 60)
     
     # Check if validation script exists
@@ -137,7 +139,7 @@ def main():
             print("pip install -r requirements.txt")
             return
     
-    print("\n✅ Validation passed! Starting application...")
+    print("\n[OK] Validation passed! Starting application...")
     start_application()
 
 if __name__ == "__main__":

@@ -14,9 +14,9 @@ def check_python_version():
     """Check if Python version is compatible"""
     print("Checking Python version...")
     if sys.version_info < (3, 8):
-        print("❌ Python 3.8 or higher is required")
+        print("[FAIL] Python 3.8 or higher is required")
         return False
-    print(f"✅ Python {sys.version.split()[0]} is compatible")
+    print(f"[OK] Python {sys.version.split()[0]} is compatible")
     return True
 
 def check_dependencies():
@@ -41,13 +41,13 @@ def check_dependencies():
                 importlib.import_module('cv2')
             else:
                 importlib.import_module(package)
-            print(f"✅ {package}")
+            print(f"[OK] {package}")
         except ImportError:
-            print(f"❌ {package} - Not installed")
+            print(f"[FAIL] {package} - Not installed")
             missing_packages.append(package)
     
     if missing_packages:
-        print(f"\n❌ Missing packages: {', '.join(missing_packages)}")
+        print(f"\n[FAIL] Missing packages: {', '.join(missing_packages)}")
         print("Run: pip install -r requirements.txt")
         return False
     
@@ -60,7 +60,7 @@ def check_camera():
     try:
         cap = cv2.VideoCapture(0)
         if not cap.isOpened():
-            print("❌ Cannot access camera (index 0)")
+            print("[FAIL] Cannot access camera (index 0)")
             print("Try different camera indices or check camera permissions")
             return False
         
@@ -68,14 +68,14 @@ def check_camera():
         cap.release()
         
         if not ret:
-            print("❌ Cannot read from camera")
+            print("[FAIL] Cannot read from camera")
             return False
         
-        print("✅ Camera is accessible")
+        print("[OK] Camera is accessible")
         return True
         
     except Exception as e:
-        print(f"❌ Camera error: {e}")
+        print(f"[FAIL] Camera error: {e}")
         return False
 
 def check_yolo_model():
@@ -85,10 +85,10 @@ def check_yolo_model():
     try:
         from ultralytics import YOLO
         model = YOLO('yolov8n.pt')  # This will download if not present
-        print("✅ YOLOv8 model loaded successfully")
+        print("[OK] YOLOv8 model loaded successfully")
         return True
     except Exception as e:
-        print(f"❌ YOLOv8 model error: {e}")
+        print(f"[FAIL] YOLOv8 model error: {e}")
         return False
 
 def check_project_files():
@@ -109,20 +109,20 @@ def check_project_files():
     
     for file_path in required_files:
         if os.path.exists(file_path):
-            print(f"✅ {file_path}")
+            print(f"[OK] {file_path}")
         else:
-            print(f"❌ {file_path} - Missing")
+            print(f"[FAIL] {file_path} - Missing")
             missing_files.append(file_path)
     
     if missing_files:
-        print(f"\n❌ Missing files: {', '.join(missing_files)}")
+        print(f"\n[FAIL] Missing files: {', '.join(missing_files)}")
         return False
     
     return True
 
 def main():
     """Run all validation checks"""
-    print("🎯 YOLOv8 Live Object Detection & Tracking - System Validation")
+    print("YOLOv8 Live Object Detection & Tracking - System Validation")
     print("=" * 70)
     
     checks = [
@@ -142,20 +142,20 @@ def main():
         if check_func():
             passed += 1
         else:
-            print(f"\n⚠️  {check_name} check failed!")
+            print(f"\n[WARNING]  {check_name} check failed!")
     
     print("\n" + "=" * 70)
     print(f"Validation Results: {passed}/{total} checks passed")
     
     if passed == total:
-        print("🎉 All checks passed! Your system is ready to run the application.")
+        print("[SUCCESS] All checks passed! Your system is ready to run the application.")
         print("\nTo start the application:")
         print("  python app.py")
         print("  or")
         print("  python run.py")
         print("\nThen open: http://localhost:5000")
     else:
-        print("❌ Some checks failed. Please fix the issues above before running.")
+        print("[FAIL] Some checks failed. Please fix the issues above before running.")
         print("\nCommon fixes:")
         print("  - Install dependencies: pip install -r requirements.txt")
         print("  - Check camera permissions")
