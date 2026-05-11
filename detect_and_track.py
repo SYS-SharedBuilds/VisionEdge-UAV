@@ -544,41 +544,57 @@ class ObjectDetectorTracker:
         Main processing loop for continuous surveillance
         """
         print("Entering surveillance processing mode...")
-        
-        import airsim
+
+        try:
+            import airsim as _airsim
+        except ImportError:
+            _airsim = None
+
         camera_name = globals().get('AIRSIM_CAMERA_NAME', "0")
-        
+
         while self.is_running:
             if self.use_airsim:
                 # AirSim camera capture
-                if not self.controller.connected or not self.controller.client:
+                if not self.controller.connected or not self.controller.client or _airsim is None:
                     # Serve placeholder while connecting
                     frame = np.zeros((CAMERA_HEIGHT, CAMERA_WIDTH, 3), dtype=np.uint8)
-                    cv2.putText(frame, "WAITING FOR AIRSIM CONNECTION...", (50, CAMERA_HEIGHT//2), 
-                              cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 165, 255), 2)
+                    cv2.putText(frame, "WAITING FOR AIRSIM CONNECTION...", (50, CAMERA_HEIGHT//2),
+                              cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
                     with self.frame_lock:
                         self.current_frame = frame
                     time.sleep(1.0)
                     continue
-                
+
                 try:
-                    # Get uncompressed image from AirSim
+                    # Request uncompressed Scene image from AirSim
                     responses = self.controller.client.simGetImages([
-                        airsim.ImageRequest(camera_name, airsim.ImageType.Scene, False, False)
+                        _airsim.ImageRequest(camera_name, _airsim.ImageType.Scene, False, False)
                     ])
                     response = responses[0]
-                    
-                    if not response.image_data_uint8:
+
+                    if response.height == 0 or response.width == 0 or not response.image_data_uint8:
+                        time.sleep(0.05)
+                        continue
+
+                    # AirSim returns BGRA (4 channels) for uncompressed images
+                    img1d = np.frombuffer(response.image_data_uint8, dtype=np.uint8)
+                    expected_pixels = response.height * response.width
+                    actual_pixels   = img1d.size
+
+                    if actual_pixels == expected_pixels * 4:
+                        # BGRA -> BGR
+                        frame = img1d.reshape(response.height, response.width, 4)[:, :, :3]
+                    elif actual_pixels == expected_pixels * 3:
+                        frame = img1d.reshape(response.height, response.width, 3)
+                    else:
+                        print(f"AirSim unexpected image size: {actual_pixels} bytes "
+                              f"for {response.width}x{response.height}")
                         time.sleep(0.1)
                         continue
-                        
-                    # Convert to numpy array
-                    img1d = np.frombuffer(response.image_data_uint8, dtype=np.uint8) 
-                    frame = img1d.reshape(response.height, response.width, 3)
+
                     ret = True
                 except Exception as e:
                     print(f"AirSim Image Capture Error: {e}")
-                    ret = False
                     time.sleep(0.5)
                     continue
             else:

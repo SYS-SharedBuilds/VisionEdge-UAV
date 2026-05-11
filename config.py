@@ -31,7 +31,7 @@ MAX_AGE = 50                  # Frames to keep a lost track
 N_INIT = 3                    # Consecutive frames to confirm a track
 DATASET_MODE = 'VISDRONE'      # 'VISDRONE', 'UAVDT', or 'COCO'
 TRACKER_TYPE = 'bytetrack'    # 'bytetrack' or 'botsort'
-ACTIVATE_AUTONOMOUS = False   # Enable autonomous control signal generation
+ACTIVATE_AUTONOMOUS = True    # Enable autonomous control signal generation
 REID_ENABLED = True           # Enable re-identification after occlusion
 
 # VisDrone Class Mapping
@@ -54,15 +54,24 @@ PRIORITY_MAP = {
 }
 
 # AirSim Control Settings
-UNREAL_EXECUTABLE_PATH = r"C:\Users\Admin\Desktop\AirSimNH\WindowsNoEditor\AirSimNH.exe"   # e.g., "C:\\Path\\To\\Environment.exe"
-AUTO_START_SIMULATION = True  # Automatically launch the environment on start
-USE_AIRSIM_CAMERA = True      # Use the drone's simulated camera instead of webcam
-AIRSIM_CAMERA_NAME = "0"      # "0" for front-facing, "3" for bottom-facing
-AIRSIM_IP = '127.0.0.1'       # AirSim host IP
-AIRSIM_PORT = 41451           # AirSim API port
-FOLLOW_HEIGHT_PCT = 0.6       # Vertical setpoint (below center, 0.6 from top)
-DESIRED_BBOX_HEIGHT = 150     # Target bbox height for distance control (pixels)
-CONTROL_GAIN_P = 0.5          # P-gain for velocity control
+UNREAL_EXECUTABLE_PATH = r"C:\Users\Admin\Desktop\AirSimNH\WindowsNoEditor\AirSimNH.exe"
+AUTO_START_SIMULATION  = True   # Automatically launch the environment on start
+
+# AirSim window mode – keeps the sim in a resizable window so the web
+# dashboard remains accessible on the same screen.
+AIRSIM_WINDOWED        = True   # False = let Unreal use its default (usually fullscreen)
+AIRSIM_WINDOW_WIDTH    = 1280   # Window width  in pixels
+AIRSIM_WINDOW_HEIGHT   = 720    # Window height in pixels
+AIRSIM_WINDOW_X        = 0      # Window X position (pixels from left edge)
+AIRSIM_WINDOW_Y        = 0      # Window Y position (pixels from top edge)
+
+USE_AIRSIM_CAMERA  = True       # Use the drone's simulated camera instead of webcam
+AIRSIM_CAMERA_NAME = "0"        # "0" for front-facing, "3" for bottom-facing
+AIRSIM_IP          = '127.0.0.1'
+AIRSIM_PORT        = 41451
+FOLLOW_HEIGHT_PCT  = 0.6
+DESIRED_BBOX_HEIGHT = 150
+CONTROL_GAIN_P     = 0.5
 
 # HUD Settings
 SHOW_PREDICTIONS = True       # Show Kalman predicted boxes
