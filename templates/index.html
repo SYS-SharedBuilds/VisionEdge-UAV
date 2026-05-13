@@ -164,7 +164,8 @@
 
     <!-- Side Navigation Shell (Left) -->
     <aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 pb-8 bg-surface-container-lowest/30 backdrop-blur-2xl border-r border-outline-variant/20 w-64">
-        <div class="px-6 mb-8">
+        <!-- Operator header - fixed, never scrolls -->
+        <div class="px-6 mb-4 shrink-0">
             <div class="flex items-center gap-3 mb-2">
                 <div class="w-10 h-10 rounded-full border border-primary-container/30 overflow-hidden">
                     <img alt="Operator" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9nqI1WjNYnc-otXvmelTPf1R10hHWL0VxyUF09hWf_IxfAQ8pJ46Pr4l6_CmkpXe7-q4lPy6KnQLs-GJLJiR4piMN8ZRgcavTCdIUGOlQWcenrLXtXd8UaQkKz33tjhM5TW0KI4i_mfouHZD_ny7ftcUbldSKpdyl5v7Sl0wkI6cLHRqt3VEn9IP9zt_dD_Hl6jUUcaY5cy_t5f1JtIHTXii_R9zbUNUDImgviTVINjyjErzosvJp9-33c3zuipvYTs1zDOGhECDs"/>
@@ -175,40 +176,45 @@
                 </div>
             </div>
         </div>
-        <nav class="flex-1 space-y-1">
-            <div class="bg-primary-container/20 text-primary-container border-l-4 border-primary-container flex items-center gap-4 px-6 py-3 cursor-pointer">
-                <span class="material-symbols-outlined">altitude</span>
-                <span class="font-data-primary text-data-primary">TELEMETRY</span>
-            </div>
-            <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
-                <span class="material-symbols-outlined">speed</span>
-                <span class="font-data-primary text-data-primary">VECTORS</span>
-            </div>
-            <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
-                <span class="material-symbols-outlined">radar</span>
-                <span class="font-data-primary text-data-primary">SIGNAL</span>
-            </div>
-        </nav>
-        
-        <div class="px-6 py-4 border-t border-outline-variant/30 mt-4 mb-4">
-            <h4 class="font-label-caps text-on-surface-variant mb-3">TARGET CATEGORY</h4>
-            <div class="flex flex-col gap-2">
-                <button onclick="setTargetCategory('person', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                    PERSON / PEDESTRIAN
-                </button>
-                <button onclick="setTargetCategory('vehicle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                    VEHICLE / TRUCK
-                </button>
-                <button onclick="setTargetCategory('bicycle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                    BICYCLE / MOTORCYCLE
-                </button>
-                <button onclick="setTargetCategory('all', this)" class="target-btn text-left px-4 py-2 bg-primary-container/20 border border-primary-container text-primary-container font-data-primary text-[13px] transition-colors active-target">
-                    ALL OBJECTS
-                </button>
+
+        <!-- Scrollable section: nav + target category -->
+        <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
+            <nav class="space-y-1">
+                <div class="bg-primary-container/20 text-primary-container border-l-4 border-primary-container flex items-center gap-4 px-6 py-3 cursor-pointer">
+                    <span class="material-symbols-outlined">altitude</span>
+                    <span class="font-data-primary text-data-primary">TELEMETRY</span>
+                </div>
+                <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined">speed</span>
+                    <span class="font-data-primary text-data-primary">VECTORS</span>
+                </div>
+                <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined">radar</span>
+                    <span class="font-data-primary text-data-primary">SIGNAL</span>
+                </div>
+            </nav>
+
+            <div class="px-6 py-4 border-t border-outline-variant/30 mt-4">
+                <h4 class="font-label-caps text-on-surface-variant mb-3">TARGET CATEGORY</h4>
+                <div class="flex flex-col gap-2">
+                    <button onclick="setTargetCategory('person', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
+                        PERSON / PEDESTRIAN
+                    </button>
+                    <button onclick="setTargetCategory('vehicle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
+                        VEHICLE / TRUCK
+                    </button>
+                    <button onclick="setTargetCategory('bicycle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
+                        BICYCLE / MOTORCYCLE
+                    </button>
+                    <button onclick="setTargetCategory('all', this)" class="target-btn text-left px-4 py-2 bg-primary-container/20 border border-primary-container text-primary-container font-data-primary text-[13px] transition-colors active-target">
+                        ALL OBJECTS
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="px-6 mt-auto">
+        <!-- RTB button - fixed at bottom, never scrolls -->
+        <div class="px-6 pt-3 shrink-0">
             <button onclick="initiateRTB()" class="w-full py-3 border border-error text-error font-label-caps text-label-caps hover:bg-error hover:text-on-error transition-all active:scale-95">
                 INITIATE RTB
             </button>
@@ -216,9 +222,10 @@
     </aside>
 
     <!-- Content Canvas -->
-    <main class="ml-64 mt-20 p-8 grid grid-cols-12 gap-gutter h-[calc(100vh-140px)] overflow-hidden">
+    <main class="ml-64 mt-20 p-3 grid gap-3 overflow-hidden" style="grid-template-columns: 210px 1fr 210px; height: calc(100vh - 118px); align-items: stretch;">
         <!-- Left Wing: Telemetry Panels -->
-        <div class="col-span-3 space-y-gutter flex flex-col">
+        <!-- Left Wing: Telemetry Panels (scrollable) -->
+        <div class="col-span-3 flex flex-col gap-gutter overflow-y-auto overflow-x-hidden" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
             <!-- Flight Status Glass Card -->
             <div class="flex-1 bg-surface-container-lowest/40 backdrop-blur-md border border-primary-container/20 p-panel-padding relative overflow-hidden group">
                 <div class="hex-pattern absolute inset-0 pointer-events-none opacity-20"></div>
@@ -278,10 +285,10 @@
             </div>
         </div>
 
-        <!-- Center: Primary Camera / AirSim Live Feed -->
-        <div class="col-span-6 flex flex-col relative">
+        <!-- Center: Primary Camera / AirSim Live Feed (expanded) -->
+        <div class="flex flex-col relative min-w-0 h-full">
             <!-- Live feed container -->
-            <div class="relative flex-1 bg-black border border-primary-container/30 overflow-hidden">
+            <div class="relative h-full bg-black border border-primary-container/30 overflow-hidden">
                 <!-- The live MJPEG stream -->
                 <img id="main-video-feed"
                      src="{{ url_for('video_feed') }}"
@@ -335,8 +342,8 @@
         </div>
 
 
-        <!-- Right Wing: AI Analytics -->
-        <div class="col-span-3 space-y-gutter flex flex-col">
+        <!-- Right Wing: AI Analytics (scrollable) -->
+        <div class="col-span-3 flex flex-col gap-gutter overflow-y-auto overflow-x-hidden" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
             <div class="flex-1 bg-surface-container-lowest/40 backdrop-blur-md border border-on-tertiary-container/30 p-panel-padding relative overflow-hidden group">
                 <h4 class="font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant/30 pb-2 mb-4">AI ANALYTICS</h4>
                 <div class="space-y-4">
@@ -373,35 +380,53 @@
         </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full z-50 flex justify-between items-center px-margin py-2 bg-surface-container-lowest/80 backdrop-blur-md border-t border-error/20">
-        <div class="flex items-center gap-6 overflow-hidden">
-            <span class="font-label-caps text-on-surface-variant shrink-0">LOG_STREAM</span>
-            <div class="flex gap-8 animate-marquee whitespace-nowrap">
-                <span class="font-status-code text-secondary-fixed flex items-center gap-2">SYSTEM LINK ESTABLISHED</span>
-                <span class="font-status-code text-on-surface-variant">UAV-77: OPTICAL LINK STABLE</span>
-                <span class="font-status-code text-primary-container">WAITING FOR COMMAND...</span>
+    <footer class="fixed bottom-0 w-full z-50 flex items-center px-4 py-2 bg-surface-container-lowest/80 backdrop-blur-md border-t border-error/20 gap-4" style="min-height:44px;">
+        <!-- Log stream - takes available space, clips overflow -->
+        <div class="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
+            <span class="font-label-caps text-on-surface-variant shrink-0 text-[10px] tracking-widest">LOG</span>
+            <div class="overflow-hidden flex-1">
+                <div class="flex gap-8 animate-marquee whitespace-nowrap">
+                    <span class="font-status-code text-secondary-fixed flex items-center gap-2">SYSTEM LINK ESTABLISHED</span>
+                    <span class="font-status-code text-on-surface-variant">UAV-77: OPTICAL LINK STABLE</span>
+                    <span class="font-status-code text-primary-container">WAITING FOR COMMAND...</span>
+                    <span class="font-status-code text-secondary-fixed flex items-center gap-2">SYSTEM LINK ESTABLISHED</span>
+                    <span class="font-status-code text-on-surface-variant">UAV-77: OPTICAL LINK STABLE</span>
+                    <span class="font-status-code text-primary-container">WAITING FOR COMMAND...</span>
+                </div>
             </div>
         </div>
-        <!-- Key reference panel -->
-        <div class="hidden md:flex items-center gap-3 shrink-0">
-            <div class="flex items-center gap-1 font-status-code text-status-code text-on-surface-variant">
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">W</span>
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">A</span>
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">S</span>
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">D</span>
-                <span class="text-[9px] ml-1">MOVE</span>
+
+        <!-- Key reference panel - fixed width, never wraps -->
+        <div class="hidden md:flex items-center gap-2 shrink-0">
+            <!-- WASD pad -->
+            <div class="flex flex-col items-center gap-0.5">
+                <div class="flex justify-center">
+                    <span id="key-w" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">W</span>
+                </div>
+                <div class="flex gap-0.5">
+                    <span id="key-a" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">A</span>
+                    <span id="key-s" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">S</span>
+                    <span id="key-d" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">D</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-0.5 items-center">
+                <span id="key-r" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Ascend">R↑</span>
+                <span id="key-f" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Descend">F↓</span>
+            </div>
+            <div class="flex flex-col gap-0.5 items-center">
+                <span id="key-q" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Yaw Left">Q↺</span>
+                <span id="key-e" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Yaw Right">E↻</span>
+            </div>
+            <div class="flex flex-col gap-0.5 items-center">
+                <span id="key-space" class="px-2 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Takeoff">SPC</span>
+                <span class="text-[8px] text-on-surface-variant/50">LIFTOFF</span>
             </div>
             <div class="w-[1px] h-4 bg-outline-variant/30"></div>
-            <div class="flex items-center gap-1 font-status-code text-status-code text-on-surface-variant">
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">PgUp</span>
-                <span class="px-1.5 py-0.5 bg-surface-container border border-outline-variant/50 rounded text-[9px]">PgDn</span>
-                <span class="text-[9px] ml-1">ALT</span>
-            </div>
-            <div class="w-[1px] h-4 bg-outline-variant/30"></div>
-            <!-- Live key HUD badge -->
-            <span id="manual-key-hud" class="font-status-code text-status-code text-primary-container opacity-0 transition-opacity duration-150"></span>
+            <span id="manual-key-hud" class="font-status-code text-status-code text-primary-container opacity-0 transition-opacity duration-150 max-w-[80px] truncate"></span>
         </div>
-        <span class="font-status-code text-status-code text-on-surface-variant">SECURE FEED // AES-256</span>
+
+        <!-- AES badge - fixed, never collides -->
+        <span class="font-status-code text-status-code text-on-surface-variant shrink-0">AES-256</span>
     </footer>
 
 
@@ -508,25 +533,51 @@
             setTimeout(() => { this.src = this.src.split('?')[0] + '?t=' + new Date().getTime(); }, 2000);
         };
 
-        // ── Manual Flight Controls ──────────────────────────────────────────
-        // W/↑   = Forward   S/↓   = Backward
-        // A/←   = Strafe L  D/→   = Strafe R
-        // PgUp  = Ascend    PgDn  = Descend
-        // ───────────────────────────────────────────────────────────────────
-        const SPEED = 3.0;   // m/s lateral / longitudinal
-        const VSPEED = 2.0;  // m/s vertical
+        // ── Manual Flight Controls ────────────────────────────────────────────
+        //  W / ↑        = Fly Forward        S / ↓  = Fly Backward
+        //  A / ←        = Strafe Left        D / →  = Strafe Right
+        //  R / PgUp     = Ascend (up)        F / PgDn = Descend (down)
+        //  Q            = Yaw Left (CCW)     E      = Yaw Right (CW)
+        //  Space        = Liftoff / Takeoff
+        // ─────────────────────────────────────────────────────────────────────
+        const SPEED    = 3.0;   // m/s  – lateral / longitudinal
+        const VSPEED   = 2.0;   // m/s  – vertical
+        const YAW_RATE = 1.0;   // normalised yaw rate (multiplied × 45° in controller)
+
         const pressedKeys = new Set();
         let cmdLoop = null;
 
+        // All keys we want to intercept (prevent browser scroll / defaults)
+        const CTRL_KEYS = new Set([
+            'w','a','s','d',
+            'arrowup','arrowdown','arrowleft','arrowright',
+            'pageup','pagedown',
+            'r','f','q','e',
+            ' '   // Space – liftoff
+        ]);
+
+        // Map each key to the visual badge element id
+        const KEY_BADGE_MAP = {
+            'w': 'key-w', 'a': 'key-a', 's': 'key-s', 'd': 'key-d',
+            'r': 'key-r', 'f': 'key-f', 'q': 'key-q', 'e': 'key-e',
+            ' ': 'key-space'
+        };
+
         function buildCommand() {
-            let vx = 0, vy = 0, vz = 0;
+            let vx = 0, vy = 0, vz = 0, yaw_rate = 0;
+            // Longitudinal (forward / backward)
             if (pressedKeys.has('w') || pressedKeys.has('arrowup'))    vx += SPEED;
             if (pressedKeys.has('s') || pressedKeys.has('arrowdown'))  vx -= SPEED;
+            // Lateral (strafe)
             if (pressedKeys.has('d') || pressedKeys.has('arrowright')) vy += SPEED;
             if (pressedKeys.has('a') || pressedKeys.has('arrowleft'))  vy -= SPEED;
-            if (pressedKeys.has('pageup'))                             vz -= VSPEED;  // AirSim z is down
-            if (pressedKeys.has('pagedown'))                           vz += VSPEED;
-            return { vx, vy, vz, yaw_rate: 0 };
+            // Vertical – AirSim NED: negative vz = UP
+            if (pressedKeys.has('r') || pressedKeys.has('pageup'))     vz -= VSPEED;
+            if (pressedKeys.has('f') || pressedKeys.has('pagedown'))   vz += VSPEED;
+            // Yaw
+            if (pressedKeys.has('q'))  yaw_rate -= YAW_RATE;
+            if (pressedKeys.has('e'))  yaw_rate += YAW_RATE;
+            return { vx, vy, vz, yaw_rate };
         }
 
         function sendManualCmd() {
@@ -538,22 +589,39 @@
             }).catch(err => console.error('Manual ctrl err:', err));
         }
 
+        // Light up / dim the on-screen key badge
+        function setKeyActive(key, active) {
+            const id = KEY_BADGE_MAP[key];
+            if (!id) return;
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (active) {
+                el.classList.add('bg-primary-container', 'text-on-primary', '!border-primary-container', 'shadow-[0_0_8px_rgba(0,242,255,0.8)]');
+                el.classList.remove('bg-surface-container', 'text-on-surface-variant');
+            } else {
+                el.classList.remove('bg-primary-container', 'text-on-primary', '!border-primary-container', 'shadow-[0_0_8px_rgba(0,242,255,0.8)]');
+                el.classList.add('bg-surface-container', 'text-on-surface-variant');
+            }
+        }
+
         // Show a small HUD badge while a key is held
         function updateKeyHUD() {
             const cmd = buildCommand();
-            const isMoving = cmd.vx !== 0 || cmd.vy !== 0 || cmd.vz !== 0;
+            const isMoving = cmd.vx !== 0 || cmd.vy !== 0 || cmd.vz !== 0 || cmd.yaw_rate !== 0;
             const badge = document.getElementById('manual-mode-badge');
             const footerBadge = document.getElementById('manual-key-hud');
             if (isMoving) {
                 if (badge) badge.classList.remove('hidden');
                 if (footerBadge) {
                     const dirs = [];
-                    if (cmd.vx > 0) dirs.push('FWD');
-                    if (cmd.vx < 0) dirs.push('BWD');
-                    if (cmd.vy > 0) dirs.push('RIGHT');
-                    if (cmd.vy < 0) dirs.push('LEFT');
-                    if (cmd.vz < 0) dirs.push('UP');
-                    if (cmd.vz > 0) dirs.push('DOWN');
+                    if (cmd.vx > 0)          dirs.push('FWD');
+                    if (cmd.vx < 0)          dirs.push('BWD');
+                    if (cmd.vy > 0)          dirs.push('RIGHT');
+                    if (cmd.vy < 0)          dirs.push('LEFT');
+                    if (cmd.vz < 0)          dirs.push('UP ↑');
+                    if (cmd.vz > 0)          dirs.push('DOWN ↓');
+                    if (cmd.yaw_rate < 0)    dirs.push('YAW ↺');
+                    if (cmd.yaw_rate > 0)    dirs.push('YAW ↻');
                     footerBadge.textContent = '⌨ ' + dirs.join(' + ');
                     footerBadge.classList.remove('opacity-0');
                     footerBadge.classList.add('opacity-100');
@@ -567,29 +635,62 @@
             }
         }
 
+        // ── Liftoff via Space bar ─────────────────────────────────────────────
+        let takeoffInProgress = false;
+        function keyboardTakeoff() {
+            if (takeoffInProgress) return;
+            takeoffInProgress = true;
+            const spaceEl = document.getElementById('key-space');
+            if (spaceEl) spaceEl.textContent = '↑↑↑';
+            fetch('/takeoff', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('[SPACE TAKEOFF]', data.message);
+                    const btn = document.getElementById('takeoff-btn');
+                    if (btn) btn.textContent = data.success ? 'AIRBORNE' : 'TAKEOFF';
+                    updateTelemetry();
+                })
+                .catch(() => {})
+                .finally(() => {
+                    takeoffInProgress = false;
+                    if (spaceEl) spaceEl.textContent = 'SPC';
+                });
+        }
+
         document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            const ctrl = ['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','pageup','pagedown'];
-            if (!ctrl.includes(key)) return;
-            e.preventDefault();
-            if (pressedKeys.has(key)) return; // already held – no duplicate
+            const key = e.key === ' ' ? ' ' : e.key.toLowerCase();
+            if (!CTRL_KEYS.has(key)) return;
+            e.preventDefault(); // stop page scroll on arrow / space
+
+            // Space = liftoff (one-shot, not held)
+            if (key === ' ') {
+                setKeyActive(' ', true);
+                keyboardTakeoff();
+                return;
+            }
+
+            if (pressedKeys.has(key)) return; // already held – no repeat
             pressedKeys.add(key);
+            setKeyActive(key, true);
             updateKeyHUD();
-            // Start repeating send loop at 10 Hz if not already running
+
+            // Start repeating send loop at 10 Hz
             if (!cmdLoop) {
-                sendManualCmd(); // immediate first send
+                sendManualCmd();
                 cmdLoop = setInterval(sendManualCmd, 100);
             }
         });
 
         document.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
+            const key = e.key === ' ' ? ' ' : e.key.toLowerCase();
+            if (key === ' ') { setKeyActive(' ', false); return; }
             pressedKeys.delete(key);
+            setKeyActive(key, false);
             updateKeyHUD();
             if (pressedKeys.size === 0 && cmdLoop) {
                 clearInterval(cmdLoop);
                 cmdLoop = null;
-                // Send a stop command
+                // Send a final stop / hover command
                 fetch('/manual_control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

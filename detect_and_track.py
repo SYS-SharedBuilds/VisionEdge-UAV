@@ -566,7 +566,8 @@ class ObjectDetectorTracker:
                     continue
 
                 try:
-                    # Request uncompressed Scene image from AirSim
+                    # simGetImages is a synchronous msgpack-rpc call — no .join(),
+                    # no Tornado IOLoop involved — safe to call from any thread.
                     responses = self.controller.client.simGetImages([
                         _airsim.ImageRequest(camera_name, _airsim.ImageType.Scene, False, False)
                     ])
