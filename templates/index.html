@@ -136,23 +136,23 @@
             <div class="font-tactical-title text-tactical-title font-bold tracking-tighter text-primary-container">VISION-EDGE UAV</div>
             <div class="h-6 w-[1px] bg-outline-variant/30"></div>
             <div class="flex flex-col">
-                <span class="font-label-caps text-status-code text-on-surface-variant">MISSION STATUS</span>
+                <span class="font-label-caps text-status-code text-on-surface-variant">TRACKING STATUS</span>
                 <span class="font-status-code text-primary-container flex items-center gap-2">
                     <span id="status-pulse" class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                    <span id="mission-status-text">INITIALIZING</span>
+                    <span id="mission-status-text">STANDBY</span>
                 </span>
             </div>
         </div>
         <nav class="hidden md:flex items-center gap-8">
-            <button onclick="startMission()" class="text-primary-container font-label-caps text-label-caps hover:text-white transition-colors">START MISSION</button>
-            <button onclick="triggerTakeoff()" id="takeoff-btn" class="px-3 py-1 border border-primary-container text-primary-container font-label-caps text-label-caps hover:bg-primary-container hover:text-on-primary transition-all">TAKEOFF</button>
-            <button onclick="stopMission()" class="text-on-surface-variant font-label-caps text-label-caps hover:text-error transition-colors">ABORT MISSION</button>
+            <button onclick="toggleTracking()" id="toggle-tracking-btn" class="px-6 py-2 border-2 border-primary-container text-primary-container font-label-caps font-bold hover:bg-primary-container hover:text-on-primary transition-all tracking-widest shadow-[0_0_10px_rgba(0,242,255,0.3)]">
+                TRACKING: ON
+            </button>
             <a class="text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-colors" href="#">SENSORS</a>
             <a class="text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-colors" href="#">COMMS</a>
         </nav>
         <div class="flex items-center gap-6 text-primary-container">
             <div class="flex flex-col items-end">
-                <span id="uav-info-text" class="font-label-caps text-status-code text-on-surface-variant">UAV-77 // AI TRACKER</span>
+                <span id="uav-info-text" class="font-label-caps text-status-code text-on-surface-variant">DUAL-STREAM // AI TRACKER</span>
                 <div class="flex items-center gap-3">
                     <span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
                     <span class="material-symbols-outlined text-[18px]">battery_charging_full</span>
@@ -213,12 +213,7 @@
             </div>
         </div>
 
-        <!-- RTB button - fixed at bottom, never scrolls -->
-        <div class="px-6 pt-3 shrink-0">
-            <button onclick="initiateRTB()" class="w-full py-3 border border-error text-error font-label-caps text-label-caps hover:bg-error hover:text-on-error transition-all active:scale-95">
-                INITIATE RTB
-            </button>
-        </div>
+        <!-- RTB button removed -->
     </aside>
 
     <!-- Content Canvas -->
@@ -226,39 +221,27 @@
         <!-- Left Wing: Telemetry Panels -->
         <!-- Left Wing: Telemetry Panels (scrollable) -->
         <div class="col-span-3 flex flex-col gap-gutter overflow-y-auto overflow-x-hidden" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
-            <!-- Flight Status Glass Card -->
+            <!-- Performance Stats Glass Card -->
             <div class="flex-1 bg-surface-container-lowest/40 backdrop-blur-md border border-primary-container/20 p-panel-padding relative overflow-hidden group">
                 <div class="hex-pattern absolute inset-0 pointer-events-none opacity-20"></div>
-                <h4 class="font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant/30 pb-2 mb-4">FLIGHT TELEMETRY</h4>
+                <h4 class="font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant/30 pb-2 mb-4">PERFORMANCE METRICS</h4>
                 <div class="space-y-6">
                     <div class="space-y-2">
                         <div class="flex justify-between font-status-code text-status-code">
-                            <span>ALTITUDE</span>
-                            <span id="alt-value" class="text-primary-container">0m</span>
-                        </div>
-                        <div class="h-1.5 w-full bg-surface-variant flex gap-0.5">
-                            <div id="alt-bar" class="h-full w-0 bg-primary-container shadow-[0_0_8px_rgba(0,242,255,0.5)] transition-all duration-500"></div>
+                            <span>FPS (STREAM A)</span>
+                            <span id="fps-a-value" class="text-primary-container">0</span>
                         </div>
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between font-status-code text-status-code">
-                            <span>VELOCITY</span>
-                            <span id="vel-value" class="text-primary-container">0 KM/H</span>
-                        </div>
-                        <div class="h-1.5 w-full bg-surface-variant flex gap-0.5">
-                            <div id="vel-bar" class="h-full w-0 bg-primary-container shadow-[0_0_8px_rgba(0,242,255,0.5)] transition-all duration-500"></div>
+                            <span>FPS (STREAM B)</span>
+                            <span id="fps-b-value" class="text-primary-container">0</span>
                         </div>
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between font-status-code text-status-code">
-                            <span>BATTERY</span>
-                            <span id="batt-value" class="text-secondary-fixed">--%</span>
-                        </div>
-                        <div id="batt-blocks" class="flex gap-1">
-                            <div class="h-1.5 w-4 bg-secondary-fixed"></div>
-                            <div class="h-1.5 w-4 bg-secondary-fixed"></div>
-                            <div class="h-1.5 w-4 bg-secondary-fixed"></div>
-                            <div class="h-1.5 w-4 bg-secondary-fixed opacity-30"></div>
+                            <span>LATENCY</span>
+                            <span id="latency-val" class="text-secondary-fixed">--MS</span>
                         </div>
                     </div>
                 </div>
@@ -270,7 +253,7 @@
                             <path d="M50,10 L50,90 M10,50 L90,50" stroke="#00f2ff" stroke-width="0.5"></path>
                         </svg>
                     </div>
-                    <div id="pitch-roll-text" class="absolute bottom-2 left-2 font-status-code text-status-code text-primary-container/60">PITCH: --° // ROLL: --°</div>
+                    <div class="absolute bottom-2 left-2 font-status-code text-status-code text-primary-container/60">CUDA: ACTIVE</div>
                 </div>
             </div>
             <!-- Tactical Radar -->
@@ -285,58 +268,39 @@
             </div>
         </div>
 
-        <!-- Center: Primary Camera / AirSim Live Feed (expanded) -->
-        <div class="flex flex-col relative min-w-0 h-full">
-            <!-- Live feed container -->
-            <div class="relative h-full bg-black border border-primary-container/30 overflow-hidden">
-                <!-- The live MJPEG stream -->
-                <img id="main-video-feed"
-                     src="{{ url_for('video_feed') }}"
-                     alt="AirSim Live Feed"
-                     class="w-full h-full object-cover"
-                     onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
-
-                <!-- HUD Corner Brackets (z-index keeps them above the feed) -->
-                <div class="absolute inset-0 border-2 border-primary-container/20 pointer-events-none z-10">
-                    <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary-container"></div>
-                    <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary-container"></div>
-                    <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary-container"></div>
-                    <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary-container"></div>
-                    <!-- Center reticle -->
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                        <div class="w-12 h-12 border border-primary-container/40 rounded-full flex items-center justify-center">
-                            <div class="w-2 h-2 bg-primary-container rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feed label -->
-                <div class="absolute top-3 left-3 z-20 flex items-center gap-2">
+        <!-- Center: Dual Camera Feeds -->
+        <div class="flex flex-col relative min-w-0 h-full gap-2">
+            <!-- Feed A -->
+            <div class="relative h-1/2 bg-black border border-primary-container/30 overflow-hidden flex-1">
+                <img id="stream-a" src="{{ url_for('video_feed', stream_id='A') }}" class="w-full h-full object-cover" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
+                
+                <div class="absolute top-3 left-3 z-20 flex items-center gap-2 bg-black/50 px-2 py-1 rounded">
                     <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                    <span class="font-status-code text-status-code text-primary-container">LIVE // AIRSIM FEED</span>
+                    <span class="font-status-code text-status-code text-primary-container">STREAM A // CAM-01</span>
                 </div>
-
-                <!-- Performance Floating Panel -->
-                <div class="absolute top-3 right-3 bg-surface-container-highest/70 backdrop-blur-lg p-3 border border-primary-container/30 z-20">
-                    <div class="flex flex-col gap-1 font-status-code text-status-code">
-                        <div class="flex justify-between gap-4">
-                            <span class="text-on-surface-variant">LATENCY</span>
-                            <span id="latency-val" class="text-secondary-fixed">0MS</span>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                            <span class="text-on-surface-variant">FPS</span>
-                            <span id="fps-val" class="text-secondary-fixed">0</span>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                            <span class="text-on-surface-variant">CUDA</span>
-                            <span id="cuda-status" class="text-primary-container">ACTIVE</span>
+            </div>
+            
+            <!-- Feed B -->
+            <div class="relative h-1/2 bg-black border border-primary-container/30 overflow-hidden flex-1">
+                <img id="stream-b" src="{{ url_for('video_feed', stream_id='B') }}" class="w-full h-full object-cover" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
+                
+                <div class="absolute top-3 left-3 z-20 flex items-center gap-2 bg-black/50 px-2 py-1 rounded">
+                    <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                    <span class="font-status-code text-status-code text-primary-container">STREAM B // CAM-02</span>
+                </div>
+            </div>
+            
+            <!-- Global Overlay -->
+            <div class="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-3">
+                <div class="flex justify-end">
+                    <div class="bg-surface-container-highest/70 backdrop-blur-lg p-3 border border-primary-container/30">
+                        <div class="flex flex-col gap-1 font-status-code text-status-code">
+                            <div class="flex justify-between gap-4">
+                                <span class="text-on-surface-variant">CUDA</span>
+                                <span id="cuda-status" class="text-primary-container">ACTIVE</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Manual control mode indicator (shows when a key is active) -->
-                <div class="absolute bottom-3 left-3 z-20">
-                    <span id="manual-mode-badge" class="hidden font-label-caps text-label-caps px-3 py-1 bg-primary-container/20 border border-primary-container text-primary-container">⌨ MANUAL OVERRIDE</span>
                 </div>
             </div>
         </div>
@@ -396,36 +360,7 @@
             </div>
         </div>
 
-        <!-- Key reference panel - fixed width, never wraps -->
-        <div class="hidden md:flex items-center gap-2 shrink-0">
-            <!-- WASD pad -->
-            <div class="flex flex-col items-center gap-0.5">
-                <div class="flex justify-center">
-                    <span id="key-w" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">W</span>
-                </div>
-                <div class="flex gap-0.5">
-                    <span id="key-a" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">A</span>
-                    <span id="key-s" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">S</span>
-                    <span id="key-d" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75">D</span>
-                </div>
-            </div>
-            <div class="flex flex-col gap-0.5 items-center">
-                <span id="key-r" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Ascend">R↑</span>
-                <span id="key-f" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Descend">F↓</span>
-            </div>
-            <div class="flex flex-col gap-0.5 items-center">
-                <span id="key-q" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Yaw Left">Q↺</span>
-                <span id="key-e" class="w-6 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Yaw Right">E↻</span>
-            </div>
-            <div class="flex flex-col gap-0.5 items-center">
-                <span id="key-space" class="px-2 h-5 flex items-center justify-center bg-surface-container border border-outline-variant/50 rounded text-[9px] font-bold text-on-surface-variant transition-all duration-75" title="Takeoff">SPC</span>
-                <span class="text-[8px] text-on-surface-variant/50">LIFTOFF</span>
-            </div>
-            <div class="w-[1px] h-4 bg-outline-variant/30"></div>
-            <span id="manual-key-hud" class="font-status-code text-status-code text-primary-container opacity-0 transition-opacity duration-150 max-w-[80px] truncate"></span>
-        </div>
-
-        <!-- AES badge - fixed, never collides -->
+        <!-- Key reference panel removed -->
         <span class="font-status-code text-status-code text-on-surface-variant shrink-0">AES-256</span>
     </footer>
 
@@ -436,45 +371,57 @@
                 .then(res => res.json())
                 .then(data => {
                     document.getElementById('mission-status-text').textContent = data.system_status;
-                    document.getElementById('uav-info-text').textContent = `UAV-77 // ${data.tracker} AI`;
-                    
-                    document.getElementById('alt-value').textContent = data.altitude_m !== null ? data.altitude_m + 'm' : 'N/A';
-                    document.getElementById('vel-value').textContent = data.velocity_kmh !== null ? data.velocity_kmh + ' KM/H' : 'N/A';
-                    document.getElementById('batt-value').textContent = data.battery_pct + '%';
-                    document.getElementById('pitch-roll-text').textContent = `PITCH: ${data.pitch_deg}° // ROLL: ${data.roll_deg}°`;
-                    
-                    document.getElementById('alt-bar').style.width = (data.altitude_m ? Math.min(data.altitude_m / 2, 100) : 0) + '%';
-                    document.getElementById('vel-bar').style.width = (data.velocity_kmh ? Math.min(data.velocity_kmh, 100) : 0) + '%';
+                    document.getElementById('uav-info-text').textContent = `DUAL-STREAM // ${data.tracker} AI`;
                     
                     document.getElementById('latency-val').textContent = data.latency_ms + 'MS';
-                    document.getElementById('fps-val').textContent = data.fps;
                     document.getElementById('cuda-status').textContent = data.cuda_active ? 'ACTIVE' : 'INACTIVE';
                     
-                    document.getElementById('active-targets-val').textContent = data.active_targets;
                     document.getElementById('occlusion-status').textContent = data.occlusion_recovery ? 'ENABLED' : 'DISABLED';
                     document.getElementById('pred-conf-val').textContent = data.pred_confidence_pct + '%';
 
+                    let total_targets = 0;
+                    if (data.streams) {
+                        if (data.streams['A']) {
+                            document.getElementById('fps-a-value').textContent = data.streams['A'].fps;
+                            total_targets += data.streams['A'].active_targets;
+                        }
+                        if (data.streams['B']) {
+                            document.getElementById('fps-b-value').textContent = data.streams['B'].fps;
+                            total_targets += data.streams['B'].active_targets;
+                        }
+                    }
+                    
+                    document.getElementById('active-targets-val').textContent = total_targets;
+
                     const pulse = document.getElementById('status-pulse');
-                    if (data.airborne) {
+                    const toggleBtn = document.getElementById('toggle-tracking-btn');
+                    
+                    if (data.tracking_enabled) {
                         pulse.className = 'w-2 h-2 rounded-full bg-primary-container animate-pulse';
-                        document.getElementById('takeoff-btn').textContent = 'AIRBORNE';
-                    } else if (data.connected) {
-                        pulse.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
-                        document.getElementById('takeoff-btn').textContent = 'TAKEOFF';
+                        if (toggleBtn) toggleBtn.textContent = 'TRACKING: ON';
+                        if (toggleBtn) {
+                            toggleBtn.classList.remove('border-yellow-400', 'text-yellow-400', 'shadow-[0_0_10px_rgba(250,204,21,0.3)]');
+                            toggleBtn.classList.add('border-primary-container', 'text-primary-container', 'shadow-[0_0_10px_rgba(0,242,255,0.3)]');
+                        }
                     } else {
-                        pulse.className = 'w-2 h-2 rounded-full bg-error animate-pulse';
-                        document.getElementById('takeoff-btn').textContent = 'TAKEOFF';
+                        pulse.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
+                        if (toggleBtn) toggleBtn.textContent = 'TRACKING: OFF';
+                        if (toggleBtn) {
+                            toggleBtn.classList.add('border-yellow-400', 'text-yellow-400', 'shadow-[0_0_10px_rgba(250,204,21,0.3)]');
+                            toggleBtn.classList.remove('border-primary-container', 'text-primary-container', 'shadow-[0_0_10px_rgba(0,242,255,0.3)]');
+                        }
                     }
                 })
                 .catch(err => console.error('Telemetry error:', err));
         }
 
-        function initiateRTB() {
-            if (confirm('CONFIRM RTB (RETURN TO BASE) SEQUENCE?')) {
-                fetch('/rtb', { method: 'POST' })
-                    .then(res => res.json())
-                    .then(data => alert(data.message));
-            }
+        function toggleTracking() {
+            fetch('/api/toggle_tracking', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.message);
+                    updateTelemetry();
+                });
         }
 
         function setTargetCategory(category, element) {
@@ -496,208 +443,8 @@
             .then(data => console.log("Target updated:", data));
         }
 
-        function startMission() {
-            fetch('/start').then(res => res.json()).then(data => {
-                console.log(data.message);
-                updateTelemetry();
-            });
-        }
-
-        function triggerTakeoff() {
-            const btn = document.getElementById('takeoff-btn');
-            btn.textContent = 'TAKING OFF...';
-            btn.disabled = true;
-            fetch('/takeoff', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    console.log('[TAKEOFF]', data.message);
-                    btn.textContent = data.success ? 'AIRBORNE' : 'TAKEOFF';
-                    btn.disabled = false;
-                    updateTelemetry();
-                })
-                .catch(() => { btn.textContent = 'TAKEOFF'; btn.disabled = false; });
-        }
-
-        function stopMission() {
-            fetch('/stop').then(res => res.json()).then(data => {
-                console.log(data.message);
-                updateTelemetry();
-            });
-        }
-
         setInterval(updateTelemetry, 2000);
         updateTelemetry();
-
-        // Auto-refresh video stream if it fails
-        document.getElementById('video-stream').onerror = function() {
-            setTimeout(() => { this.src = this.src.split('?')[0] + '?t=' + new Date().getTime(); }, 2000);
-        };
-
-        // ── Manual Flight Controls ────────────────────────────────────────────
-        //  W / ↑        = Fly Forward        S / ↓  = Fly Backward
-        //  A / ←        = Strafe Left        D / →  = Strafe Right
-        //  R / PgUp     = Ascend (up)        F / PgDn = Descend (down)
-        //  Q            = Yaw Left (CCW)     E      = Yaw Right (CW)
-        //  Space        = Liftoff / Takeoff
-        // ─────────────────────────────────────────────────────────────────────
-        const SPEED    = 3.0;   // m/s  – lateral / longitudinal
-        const VSPEED   = 2.0;   // m/s  – vertical
-        const YAW_RATE = 1.0;   // normalised yaw rate (multiplied × 45° in controller)
-
-        const pressedKeys = new Set();
-        let cmdLoop = null;
-
-        // All keys we want to intercept (prevent browser scroll / defaults)
-        const CTRL_KEYS = new Set([
-            'w','a','s','d',
-            'arrowup','arrowdown','arrowleft','arrowright',
-            'pageup','pagedown',
-            'r','f','q','e',
-            ' '   // Space – liftoff
-        ]);
-
-        // Map each key to the visual badge element id
-        const KEY_BADGE_MAP = {
-            'w': 'key-w', 'a': 'key-a', 's': 'key-s', 'd': 'key-d',
-            'r': 'key-r', 'f': 'key-f', 'q': 'key-q', 'e': 'key-e',
-            ' ': 'key-space'
-        };
-
-        function buildCommand() {
-            let vx = 0, vy = 0, vz = 0, yaw_rate = 0;
-            // Longitudinal (forward / backward)
-            if (pressedKeys.has('w') || pressedKeys.has('arrowup'))    vx += SPEED;
-            if (pressedKeys.has('s') || pressedKeys.has('arrowdown'))  vx -= SPEED;
-            // Lateral (strafe)
-            if (pressedKeys.has('d') || pressedKeys.has('arrowright')) vy += SPEED;
-            if (pressedKeys.has('a') || pressedKeys.has('arrowleft'))  vy -= SPEED;
-            // Vertical – AirSim NED: negative vz = UP
-            if (pressedKeys.has('r') || pressedKeys.has('pageup'))     vz -= VSPEED;
-            if (pressedKeys.has('f') || pressedKeys.has('pagedown'))   vz += VSPEED;
-            // Yaw
-            if (pressedKeys.has('q'))  yaw_rate -= YAW_RATE;
-            if (pressedKeys.has('e'))  yaw_rate += YAW_RATE;
-            return { vx, vy, vz, yaw_rate };
-        }
-
-        function sendManualCmd() {
-            const cmd = buildCommand();
-            fetch('/manual_control', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(cmd)
-            }).catch(err => console.error('Manual ctrl err:', err));
-        }
-
-        // Light up / dim the on-screen key badge
-        function setKeyActive(key, active) {
-            const id = KEY_BADGE_MAP[key];
-            if (!id) return;
-            const el = document.getElementById(id);
-            if (!el) return;
-            if (active) {
-                el.classList.add('bg-primary-container', 'text-on-primary', '!border-primary-container', 'shadow-[0_0_8px_rgba(0,242,255,0.8)]');
-                el.classList.remove('bg-surface-container', 'text-on-surface-variant');
-            } else {
-                el.classList.remove('bg-primary-container', 'text-on-primary', '!border-primary-container', 'shadow-[0_0_8px_rgba(0,242,255,0.8)]');
-                el.classList.add('bg-surface-container', 'text-on-surface-variant');
-            }
-        }
-
-        // Show a small HUD badge while a key is held
-        function updateKeyHUD() {
-            const cmd = buildCommand();
-            const isMoving = cmd.vx !== 0 || cmd.vy !== 0 || cmd.vz !== 0 || cmd.yaw_rate !== 0;
-            const badge = document.getElementById('manual-mode-badge');
-            const footerBadge = document.getElementById('manual-key-hud');
-            if (isMoving) {
-                if (badge) badge.classList.remove('hidden');
-                if (footerBadge) {
-                    const dirs = [];
-                    if (cmd.vx > 0)          dirs.push('FWD');
-                    if (cmd.vx < 0)          dirs.push('BWD');
-                    if (cmd.vy > 0)          dirs.push('RIGHT');
-                    if (cmd.vy < 0)          dirs.push('LEFT');
-                    if (cmd.vz < 0)          dirs.push('UP ↑');
-                    if (cmd.vz > 0)          dirs.push('DOWN ↓');
-                    if (cmd.yaw_rate < 0)    dirs.push('YAW ↺');
-                    if (cmd.yaw_rate > 0)    dirs.push('YAW ↻');
-                    footerBadge.textContent = '⌨ ' + dirs.join(' + ');
-                    footerBadge.classList.remove('opacity-0');
-                    footerBadge.classList.add('opacity-100');
-                }
-            } else {
-                if (badge) badge.classList.add('hidden');
-                if (footerBadge) {
-                    footerBadge.classList.remove('opacity-100');
-                    footerBadge.classList.add('opacity-0');
-                }
-            }
-        }
-
-        // ── Liftoff via Space bar ─────────────────────────────────────────────
-        let takeoffInProgress = false;
-        function keyboardTakeoff() {
-            if (takeoffInProgress) return;
-            takeoffInProgress = true;
-            const spaceEl = document.getElementById('key-space');
-            if (spaceEl) spaceEl.textContent = '↑↑↑';
-            fetch('/takeoff', { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    console.log('[SPACE TAKEOFF]', data.message);
-                    const btn = document.getElementById('takeoff-btn');
-                    if (btn) btn.textContent = data.success ? 'AIRBORNE' : 'TAKEOFF';
-                    updateTelemetry();
-                })
-                .catch(() => {})
-                .finally(() => {
-                    takeoffInProgress = false;
-                    if (spaceEl) spaceEl.textContent = 'SPC';
-                });
-        }
-
-        document.addEventListener('keydown', (e) => {
-            const key = e.key === ' ' ? ' ' : e.key.toLowerCase();
-            if (!CTRL_KEYS.has(key)) return;
-            e.preventDefault(); // stop page scroll on arrow / space
-
-            // Space = liftoff (one-shot, not held)
-            if (key === ' ') {
-                setKeyActive(' ', true);
-                keyboardTakeoff();
-                return;
-            }
-
-            if (pressedKeys.has(key)) return; // already held – no repeat
-            pressedKeys.add(key);
-            setKeyActive(key, true);
-            updateKeyHUD();
-
-            // Start repeating send loop at 10 Hz
-            if (!cmdLoop) {
-                sendManualCmd();
-                cmdLoop = setInterval(sendManualCmd, 100);
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            const key = e.key === ' ' ? ' ' : e.key.toLowerCase();
-            if (key === ' ') { setKeyActive(' ', false); return; }
-            pressedKeys.delete(key);
-            setKeyActive(key, false);
-            updateKeyHUD();
-            if (pressedKeys.size === 0 && cmdLoop) {
-                clearInterval(cmdLoop);
-                cmdLoop = null;
-                // Send a final stop / hover command
-                fetch('/manual_control', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ vx: 0, vy: 0, vz: 0, yaw_rate: 0 })
-                }).catch(() => {});
-            }
-        });
     </script>
 </body>
 </html>

@@ -22,9 +22,9 @@ import atexit
 import signal
 import sys
 import subprocess
-from detect_and_track import initialize_detector, get_detector
+from detect_and_track import initialize_detectors, get_detector, tracking_enabled, detectors
 try:
-    from config import HOST, PORT, DEBUG, JPEG_QUALITY, STREAM_FPS, CAMERA_INDEX, AUTO_START_SIMULATION, UNREAL_EXECUTABLE_PATH
+    from config import HOST, PORT, DEBUG, JPEG_QUALITY, STREAM_FPS, VIDEO_SOURCES
 except ImportError:
     # Default values if config.py is not available
     HOST = '0.0.0.0'
@@ -32,9 +32,7 @@ except ImportError:
     DEBUG = False
     JPEG_QUALITY = 85
     STREAM_FPS = 30
-    CAMERA_INDEX = 0
-    AUTO_START_SIMULATION = False
-    UNREAL_EXECUTABLE_PATH = ""
+    VIDEO_SOURCES = ["media/demo_a.mp4", "media/demo_b.mp4"]
 
 # Initialize Flask application
 app = Flask(__name__)
@@ -46,57 +44,16 @@ processing_thread = None
 
 def initialize_app():
     """Initialize the detector and start processing"""
-    global detector, processing_thread
     
     try:
-        if AUTO_START_SIMULATION and UNREAL_EXECUTABLE_PATH:
-            if os.path.exists(UNREAL_EXECUTABLE_PATH):
-                # Build the Unreal Engine launch command.
-                # -windowed   → prevent fullscreen takeover
-                # -ResX/Y     → window size
-                # -WinX/Y     → window position (top-left corner of screen)
-                try:
-                    from config import (AIRSIM_WINDOWED, AIRSIM_WINDOW_WIDTH,
-                                        AIRSIM_WINDOW_HEIGHT, AIRSIM_WINDOW_X,
-                                        AIRSIM_WINDOW_Y)
-                except ImportError:
-                    AIRSIM_WINDOWED     = True
-                    AIRSIM_WINDOW_WIDTH = 1280
-                    AIRSIM_WINDOW_HEIGHT = 720
-                    AIRSIM_WINDOW_X     = 0
-                    AIRSIM_WINDOW_Y     = 0
-
-                cmd = [UNREAL_EXECUTABLE_PATH]
-                if AIRSIM_WINDOWED:
-                    cmd += [
-                        '-windowed',
-                        f'-ResX={AIRSIM_WINDOW_WIDTH}',
-                        f'-ResY={AIRSIM_WINDOW_HEIGHT}',
-                        f'-WinX={AIRSIM_WINDOW_X}',
-                        f'-WinY={AIRSIM_WINDOW_Y}',
-                    ]
-                    print(f"Launching AirSim in windowed mode "
-                          f"({AIRSIM_WINDOW_WIDTH}x{AIRSIM_WINDOW_HEIGHT} "
-                          f"at {AIRSIM_WINDOW_X},{AIRSIM_WINDOW_Y})")
-                else:
-                    print("Launching AirSim in fullscreen mode")
-
-                subprocess.Popen(cmd)
-                print("Waiting 15 seconds for simulation to boot...")
-                time.sleep(15)
-            else:
-                print(f"WARNING: Unreal Engine executable not found at {UNREAL_EXECUTABLE_PATH}")
-                print("Please update UNREAL_EXECUTABLE_PATH in config.py or start the simulation manually.")
-
-
-        print("Initializing object detector and tracker...")
-        detector = initialize_detector()
+        print("Initializing object detectors for dual stream...")
+        initialize_detectors(VIDEO_SOURCES)
         
-        print("Starting webcam...")
-        detector.start_webcam(camera_index=CAMERA_INDEX)
-        
-        print("Starting processing thread...")
-        processing_thread = detector.start_processing_thread()
+        for sid, detector in detectors.items():
+            print(f"Starting video for {sid}...")
+            detector.start_video()
+            print(f"Starting processing thread for {sid}...")
+            detector.start_processing_thread()
         
         print("Application initialized successfully!")
         return True
@@ -107,11 +64,10 @@ def initialize_app():
 
 def cleanup():
     """Clean up resources on application shutdown"""
-    global detector
     print("Cleaning up resources...")
-    
-    if detector:
-        detector.stop_webcam()
+    for sid, detector in detectors.items():
+        if detector:
+            detector.stop_video()
     
     print("Cleanup completed!")
 
@@ -128,14 +84,14 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
-def generate_frames():
+def generate_frames(stream_id):
     """
     Generator function for MJPEG streaming
     
     Yields:
         bytes: JPEG-encoded frame data for streaming
     """
-    global detector
+    detector = get_detector(stream_id)
     
     while True:
         if detector is None:
@@ -200,29 +156,40 @@ def index():
     """Main page route"""
     return render_template('index.html')
 
-@app.route('/video_feed')
-def video_feed():
+@app.route('/stream/<stream_id>')
+def video_feed(stream_id):
     """Video streaming route for MJPEG stream"""
-    return Response(generate_frames(),
+    return Response(generate_frames(stream_id),
                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/api/toggle_tracking', methods=['POST'])
+def toggle_tracking():
+    if tracking_enabled.is_set():
+        tracking_enabled.clear()
+        state = False
+    else:
+        tracking_enabled.set()
+        state = True
+    return jsonify({
+        'success': True,
+        'tracking_enabled': state,
+        'message': 'Tracking ' + ('enabled' if state else 'disabled')
+    })
 
 @app.route('/status')
 def status():
     """API endpoint to check application status"""
-    global detector
     
-    if detector is None:
+    if not detectors:
         return jsonify({
             'status': 'initializing',
-            'webcam': False,
             'detector': False
         })
     
     return jsonify({
         'status': 'running',
-        'webcam': detector.is_running,
         'detector': True,
-        'connected': detector.controller.connected
+        'tracking_enabled': tracking_enabled.is_set()
     })
 
 @app.route('/start')
@@ -243,12 +210,11 @@ def start_detection():
 @app.route('/stop')
 def stop_detection():
     """API endpoint to stop detection"""
-    global detector
-    
     try:
-        if detector:
-            detector.stop_webcam()
-            detector = None
+        for sid, detector in detectors.items():
+            if detector:
+                detector.stop_video()
+        detectors.clear()
         
         return jsonify({
             'success': True,
@@ -263,122 +229,46 @@ def stop_detection():
 @app.route('/telemetry')
 def telemetry():
     """API endpoint returning live telemetry data for the UI"""
-    global detector
     import random
-
-    ctrl      = detector.controller if detector else None
-    connected = ctrl.connected      if ctrl      else False
-    airborne  = ctrl.is_airborne    if ctrl      else False
-
-    fps            = 0
-    active_targets = 0
-    system_status  = "OFFLINE"
-    tracker_type   = "ByteTrack"
-
+    
+    tracker_type = "ByteTrack"
     try:
         from config import TRACKER_TYPE
         tracker_type = TRACKER_TYPE.upper()
     except Exception:
         pass
 
-    if detector:
-        fps            = round(detector.metrics.fps, 1)
-        active_targets = len([t for t in detector.persistent_tracks.values() if t.state != "LOST"])
-        if not connected:
-            system_status = "OFFLINE"
-        elif not airborne:
-            system_status = "CONNECTED – NOT AIRBORNE"
-        else:
-            system_status = "ACTIVE SURVEILLANCE" if detector.is_running else "STANDBY"
+    streams_data = {}
+    for sid, detector in detectors.items():
+        if detector:
+            streams_data[sid] = {
+                'fps': round(detector.metrics.fps, 1),
+                'active_targets': len([t for t in detector.persistent_tracks.values() if t.state != "LOST"]),
+                'primary_target': detector.primary_target_id['class_name'] if detector.primary_target_id else None,
+                'primary_conf': round(detector.primary_target_id['confidence'], 2) if detector.primary_target_id else None
+            }
 
     return jsonify({
-        'connected'          : connected,
-        'airborne'           : airborne,
-        'fps'                : fps,
-        'latency_ms'         : round(random.uniform(18, 30), 1) if connected else 0,
-        'active_targets'     : active_targets,
-        'system_status'      : system_status,
-        'tracker'            : tracker_type,
-        'cuda_active'        : True,
-        'altitude_m'         : 150 if airborne else None,
-        'velocity_kmh'       : 45  if airborne else None,
-        'battery_pct'        : 68,
-        'pitch_deg'          : 2.4,
-        'roll_deg'           : 0.1,
+        'tracking_enabled': tracking_enabled.is_set(),
+        'system_status': 'ACTIVE SURVEILLANCE' if tracking_enabled.is_set() else 'STANDBY',
+        'tracker': tracker_type,
+        'streams': streams_data,
+        'cuda_active': True,
+        'latency_ms': round(random.uniform(18, 30), 1),
         'pred_confidence_pct': 92,
-        'occlusion_recovery' : True,
+        'occlusion_recovery': True,
     })
-
-
-@app.route('/rtb', methods=['POST'])
-def rtb():
-    """Initiate Return To Base / land sequence"""
-    global detector
-    try:
-        if detector:
-            ok, msg = detector.controller.land()
-            return jsonify({'success': ok, 'message': msg})
-        return jsonify({'success': False, 'message': 'Detector not initialised'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@app.route('/takeoff', methods=['POST'])
-def takeoff():
-    """Arm and take off"""
-    global detector
-    try:
-        if detector:
-            ok, msg = detector.controller.takeoff()
-            return jsonify({'success': ok, 'message': msg})
-        return jsonify({'success': False, 'message': 'Detector not initialised'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
-
-
-@app.route('/debug')
-def debug_status():
-    """Debug endpoint – shows full AirSim controller state"""
-    global detector
-    ctrl = detector.controller if detector else None
-    return jsonify({
-        'detector_ready'   : detector is not None,
-        'airsim_connected' : ctrl.connected    if ctrl else False,
-        'is_airborne'      : ctrl.is_airborne  if ctrl else False,
-        'manual_override'  : ctrl.manual_override if ctrl else False,
-        'last_cmd_age_s'   : round((__import__('time').time() - ctrl._last_cmd_time), 2) if ctrl else None,
-    })
-
-
-@app.route('/manual_control', methods=['POST'])
-def manual_control():
-    """API endpoint to send manual velocity commands to the drone (WASD / Arrows / PgUp-PgDn)"""
-    global detector
-    try:
-        data = request.json
-        vx       = float(data.get('vx', 0))
-        vy       = float(data.get('vy', 0))
-        vz       = float(data.get('vz', 0))
-        yaw_rate = float(data.get('yaw_rate', 0))
-
-        if detector:
-            # manual_fly() owns the override flag + API control toggling
-            detector.controller.manual_fly(vx, vy, vz, yaw_rate)
-
-        return jsonify({'success': True, 'vx': vx, 'vy': vy, 'vz': vz})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
 
 
 @app.route('/set_target', methods=['POST'])
 def set_target():
     """API endpoint to set the active target category"""
-    global detector
     try:
         data = request.json
         category = data.get('category')
-        if detector:
-            detector.selector.active_category = category
+        for sid, detector in detectors.items():
+            if detector:
+                detector.selector.active_category = category
         return jsonify({'success': True, 'category': category})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})

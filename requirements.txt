@@ -7,5 +7,4 @@ Pillow>=10.0.0
 torch>=2.0.0
 torchvision>=0.15.0
 scipy>=1.10.0
-airsim>=1.8.0
-msgpack-rpc-python>=0.4.1
+rfdetr

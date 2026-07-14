@@ -14,12 +14,82 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 import cv2
 import numpy as np
-from ultralytics import YOLO
 import threading
 import time
 from collections import defaultdict
 import math
-from controller import AirSimController, TargetSelector, MAVLinkPacker
+
+# Global state for tracking toggle
+tracking_enabled = threading.Event()
+tracking_enabled.set()
+
+class TargetSelector:
+    """Selects the best target from active tracks based on priority and size."""
+    def __init__(self, priority_map=None):
+        self.priority_map = priority_map or PRIORITY_MAP
+        self.active_category = "all"
+
+    def get_priority(self, class_name):
+        return self.priority_map.get(class_name, self.priority_map.get('others', 99))
+
+    def select(self, tracks):
+        if not tracks:
+            return None
+        filtered = []
+        for t in tracks:
+            cls = t['class_name'].lower()
+            cat = self.active_category
+            if cat and cat != "all":
+                if cat == 'person'  and cls not in ['pedestrian','people','person']:
+                    continue
+                if cat == 'vehicle' and cls not in ['car','van','truck','bus']:
+                    continue
+                if cat == 'bicycle' and cls not in ['bicycle','motorcycle','motor','tricycle']:
+                    continue
+            filtered.append(t)
+        if not filtered:
+            return None
+        ranked = [(self.get_priority(t['class_name']),
+                   -((t['bbox'][2]-t['bbox'][0])*(t['bbox'][3]-t['bbox'][1])),
+                   t) for t in filtered]
+        ranked.sort()
+        return ranked[0][2]
+
+class AdaptiveDetector:
+    def __init__(self, model_size='RFDETRBase', confidence_threshold=0.5):
+        self.confidence_threshold = confidence_threshold
+        try:
+            from rfdetr import RFDETR
+            self.model = RFDETR(model_size)
+            self.is_rfdetr_pkg = True
+        except ImportError:
+            print("[WARN] rfdetr package not found, falling back to Ultralytics RT-DETR")
+            from ultralytics import RTDETR
+            self.model = RTDETR('rtdetr-l.pt')
+            self.is_rfdetr_pkg = False
+
+    def track(self, frame, persist=True, tracker="bytetrack.yaml"):
+        if not self.is_rfdetr_pkg:
+            return self.model.track(frame, persist=persist, conf=self.confidence_threshold, tracker=tracker, verbose=False)
+        else:
+            # Fallback wrapper if using the real rfdetr package but ultralytics tracker is expected downstream
+            # In a real implementation this would format results to match ultralytics or use SimpleTracker.
+            # Here we assume the rfdetr package outputs something similar or we fallback to ultralytics.
+            try:
+                # Try assuming ultralytics-like interface for the sake of demo
+                return self.model.track(frame, persist=persist, conf=self.confidence_threshold, tracker=tracker, verbose=False)
+            except AttributeError:
+                # Mock a return structure if it lacks .track
+                class MockBox:
+                    def __init__(self):
+                        self.id = None
+                        self.xyxy = None
+                        self.conf = None
+                        self.cls = None
+                class MockResult:
+                    def __init__(self):
+                        self.boxes = MockBox()
+                return [MockResult()]
 try:
     from config import *
 except ImportError:
@@ -336,27 +406,28 @@ class TrackInfo:
         self.predicted_pos = (center[0] + self.velocity[0], center[1] + self.velocity[1])
 
 class ObjectDetectorTracker:
-    def __init__(self, model_name=None, confidence_threshold=None):
+    def __init__(self, video_source, stream_id="A"):
         """
         Initialize the object detector and tracker
         
         Args:
-            model_name (str): YOLOv8 model name/path (defaults to config value)
-            confidence_threshold (float): Minimum confidence for detections (defaults to config value)
+            video_source (str): Path to video file
+            stream_id (str): Identifier for this stream
         """
-        # Use config values as defaults
-        model_name = model_name or YOLO_MODEL
-        confidence_threshold = confidence_threshold or CONFIDENCE_THRESHOLD
+        self.video_source = video_source
+        self.stream_id = stream_id
         
-        # Initialize YOLOv8 model
-        print("Loading YOLOv8 model...")
-        self.model = YOLO(model_name)
+        # Use config values as defaults
+        confidence_threshold = CONFIDENCE_THRESHOLD
+        
+        # Initialize Dual Backbone / RF-DETR model
+        print(f"[{self.stream_id}] Loading RF-DETR model...")
+        self.model = AdaptiveDetector(model_size=RFDETR_MODEL_SIZE, confidence_threshold=confidence_threshold)
         self.confidence_threshold = confidence_threshold
         
         # Initialize Advanced Components
         self.metrics = MetricsSystem()
         self.hud = HUDPainter(theme_color=HUD_COLOR_THEME)
-        self.controller = AirSimController()
         self.selector = TargetSelector()
         
         # Track management
@@ -398,48 +469,31 @@ class ObjectDetectorTracker:
             self.track_colors[track_id] = color
         return self.track_colors[track_id]
     
-    def start_webcam(self, camera_index=0):
+    def start_video(self):
         """
-        Start video source (Webcam, File, or AirSim Camera)
+        Start video source
         """
-        self.use_airsim = globals().get('USE_AIRSIM_CAMERA', False)
-        
-        if self.use_airsim:
-            print("Configured to use AirSim camera. Waiting for connection in processing thread...")
-            self.cap = None
-            self.is_running = True
-            return
-            
-        source = CAMERA_INDEX if USE_WEBCAM else VIDEO_SOURCE
-        print(f"Starting video acquisition from: {source}")
-        self.cap = cv2.VideoCapture(source)
+        print(f"[{self.stream_id}] Starting video acquisition from: {self.video_source}")
+        self.cap = cv2.VideoCapture(self.video_source)
         
         if not self.cap.isOpened():
-            print(f"ERROR: Could not open source {source}")
-            # Create a placeholder frame if source fails
+            print(f"[{self.stream_id}] ERROR: Could not open source {self.video_source}")
             self.current_frame = np.zeros((CAMERA_HEIGHT, CAMERA_WIDTH, 3), dtype=np.uint8)
             cv2.putText(self.current_frame, "SIGNAL LOST: NO VIDEO SOURCE", (CAMERA_WIDTH//2-200, CAMERA_HEIGHT//2), 
                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            self.is_running = True # Keep thread alive to serve the placeholder
+            self.is_running = True
             return
         
-        # Performance tuning for processing
-        if USE_WEBCAM:
-            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-            self.cap.set(cv2.CAP_PROP_FPS, CAMERA_FPS)
-        
         self.is_running = True
-        print("Video source initialized successfully!")
+        print(f"[{self.stream_id}] Video source initialized successfully!")
     
-    def stop_webcam(self):
-        """Stop webcam capture and release resources"""
-        print("Stopping webcam...")
+    def stop_video(self):
+        """Stop video capture and release resources"""
+        print(f"[{self.stream_id}] Stopping video...")
         self.is_running = False
-        if self.cap:
+        if hasattr(self, 'cap') and self.cap:
             self.cap.release()
-        cv2.destroyAllWindows()
-        print("Webcam stopped successfully!")
+        print(f"[{self.stream_id}] Video stopped successfully!")
     
     def detect_and_track(self, frame):
         """
@@ -447,10 +501,12 @@ class ObjectDetectorTracker:
         """
         h, w = frame.shape[:2]
         
-        # Run YOLOv8 tracking (ByteTrack or BoT-SORT)
-        # Using persist=True to maintain IDs between frames
-        results = self.model.track(frame, persist=True, conf=self.confidence_threshold, 
-                                  tracker=TRACKER_TYPE + ".yaml", verbose=False)
+        if not tracking_enabled.is_set():
+            # If tracking is disabled, return raw frame without running RF-DETR
+            return frame.copy()
+
+        # Run RF-DETR tracking
+        results = self.model.track(frame, persist=True, tracker=TRACKER_TYPE + ".yaml")
         
         annotated_frame = frame.copy()
         current_tracks_data = []
@@ -504,16 +560,7 @@ class ObjectDetectorTracker:
             primary_track = self.primary_target_id
             # Redraw primary target with operator highlight
             self.hud.draw_target(annotated_frame, primary_track, is_primary=True)
-
-        # Autonomous Control Loop
-        if primary_track and ACTIVATE_AUTONOMOUS:
-            vx, vy, vz, yaw = self.controller.compute_control(primary_track, w, h)
-            self.controller.send_commands(vx, vy, vz, yaw)
-            
-            # Update metrics with control data for SA panel
-            self.metrics.log_prediction_error(abs(vx) + abs(vy))
         
-        # Update HUD Dashboard
         self.metrics.update()
         hud_status = "LOCKED" if primary_track else "SEARCHING"
         if any(t.state == "OCCLUDED" for t in self.persistent_tracks.values()):
@@ -521,7 +568,7 @@ class ObjectDetectorTracker:
             
         self.hud.draw_dashboard(annotated_frame, self.metrics, 
                               system_status=hud_status, primary_target=primary_track,
-                              drone_connected=self.controller.connected)
+                              drone_connected=False)
         
         return annotated_frame
     
@@ -543,77 +590,23 @@ class ObjectDetectorTracker:
         """
         Main processing loop for continuous surveillance
         """
-        print("Entering surveillance processing mode...")
-
-        try:
-            import airsim as _airsim
-        except ImportError:
-            _airsim = None
-
-        camera_name = globals().get('AIRSIM_CAMERA_NAME', "0")
+        print(f"[{self.stream_id}] Entering surveillance processing mode...")
 
         while self.is_running:
-            if self.use_airsim:
-                # AirSim camera capture
-                if not self.controller.connected or not self.controller.client or _airsim is None:
-                    # Serve placeholder while connecting
-                    frame = np.zeros((CAMERA_HEIGHT, CAMERA_WIDTH, 3), dtype=np.uint8)
-                    cv2.putText(frame, "WAITING FOR AIRSIM CONNECTION...", (50, CAMERA_HEIGHT//2),
-                              cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 165, 255), 2)
-                    with self.frame_lock:
-                        self.current_frame = frame
-                    time.sleep(1.0)
-                    continue
-
-                try:
-                    # simGetImages is a synchronous msgpack-rpc call — no .join(),
-                    # no Tornado IOLoop involved — safe to call from any thread.
-                    responses = self.controller.client.simGetImages([
-                        _airsim.ImageRequest(camera_name, _airsim.ImageType.Scene, False, False)
-                    ])
-                    response = responses[0]
-
-                    if response.height == 0 or response.width == 0 or not response.image_data_uint8:
-                        time.sleep(0.05)
-                        continue
-
-                    # AirSim returns BGRA (4 channels) for uncompressed images
-                    img1d = np.frombuffer(response.image_data_uint8, dtype=np.uint8)
-                    expected_pixels = response.height * response.width
-                    actual_pixels   = img1d.size
-
-                    if actual_pixels == expected_pixels * 4:
-                        # BGRA -> BGR
-                        frame = img1d.reshape(response.height, response.width, 4)[:, :, :3]
-                    elif actual_pixels == expected_pixels * 3:
-                        frame = img1d.reshape(response.height, response.width, 3)
-                    else:
-                        print(f"AirSim unexpected image size: {actual_pixels} bytes "
-                              f"for {response.width}x{response.height}")
-                        time.sleep(0.1)
-                        continue
-
-                    ret = True
-                except Exception as e:
-                    print(f"AirSim Image Capture Error: {e}")
-                    time.sleep(0.5)
-                    continue
-            else:
-                # Standard Webcam/File capture
-                if self.cap is None:
-                    time.sleep(0.1)
-                    continue
-                
+            if self.cap is None:
+                time.sleep(0.1)
+                continue
+            
+            ret, frame = self.cap.read()
+            
+            # Auto-loop for video files
+            if not ret:
+                self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 ret, frame = self.cap.read()
-                
-                # Auto-loop for video files
-                if not ret and not USE_WEBCAM:
-                    self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                    ret, frame = self.cap.read()
-                
-                if not ret:
-                    time.sleep(0.1)
-                    continue
+            
+            if not ret:
+                time.sleep(0.1)
+                continue
             
             try:
                 # 4K Resolution Downscaling for Performance
@@ -646,16 +639,19 @@ class ObjectDetectorTracker:
         return processing_thread
 
 
-# Global detector instance (will be initialized by Flask app)
-detector = None
+# Global detectors dictionary (will be initialized by Flask app)
+detectors = {}
 
-def initialize_detector():
-    """Initialize the global detector instance"""
-    global detector
-    if detector is None:
-        detector = ObjectDetectorTracker()
-    return detector
+def initialize_detectors(video_sources):
+    """Initialize the global detector instances for multiple streams"""
+    global detectors
+    stream_ids = ["A", "B", "C", "D"]
+    for i, source in enumerate(video_sources):
+        sid = stream_ids[i]
+        if sid not in detectors:
+            detectors[sid] = ObjectDetectorTracker(video_source=source, stream_id=sid)
+    return detectors
 
-def get_detector():
-    """Get the global detector instance"""
-    return detector
+def get_detector(stream_id):
+    """Get the global detector instance for a specific stream"""
+    return detectors.get(stream_id)

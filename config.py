@@ -1,5 +1,5 @@
 """
-Configuration file for YOLOv8 Live Object Detection and Tracking
+Configuration file for Dual-Video RF-DETR Object Detection and Tracking
 
 Modify these settings to customize the application behavior.
 """
@@ -13,16 +13,14 @@ DEBUG = False
 JPEG_QUALITY = 85
 STREAM_FPS = 30
 
-# Video/Camera Settings
-USE_WEBCAM = False            # Set to False to use a video file
-VIDEO_SOURCE = 'drone_video.mp4' # Path to 4K or UAV surveillance video
-CAMERA_INDEX = 0              # Camera index (used only if USE_WEBCAM is True)
+# Video Settings
+VIDEO_SOURCES = ["media/demo_a.mp4", "media/demo_b.mp4"]
 CAMERA_WIDTH = 1280           # Target processing width (auto-scaled for performance)
 CAMERA_HEIGHT = 720           # Target processing height
 CAMERA_FPS = 30               # Target FPS
 
-# YOLOv8 Model Settings
-YOLO_MODEL = 'yolov8n.pt'     # Model size: yolov8n.pt (fastest) to yolov8x.pt (most accurate)
+# RF-DETR Model Settings
+RFDETR_MODEL_SIZE = 'RFDETRBase'  # RFDETRBase or RFDETRLarge
 CONFIDENCE_THRESHOLD = 0.5    # Minimum confidence for detections (0.0 to 1.0)
 
 # Deep SORT Tracking Settings
@@ -31,7 +29,6 @@ MAX_AGE = 50                  # Frames to keep a lost track
 N_INIT = 3                    # Consecutive frames to confirm a track
 DATASET_MODE = 'VISDRONE'      # 'VISDRONE', 'UAVDT', or 'COCO'
 TRACKER_TYPE = 'bytetrack'    # 'bytetrack' or 'botsort'
-ACTIVATE_AUTONOMOUS = True    # Enable autonomous control signal generation
 REID_ENABLED = True           # Enable re-identification after occlusion
 
 # VisDrone Class Mapping
@@ -53,25 +50,8 @@ PRIORITY_MAP = {
     'others': 99
 }
 
-# AirSim Control Settings
-UNREAL_EXECUTABLE_PATH = r"C:\Users\Admin\Desktop\AirSimNH\WindowsNoEditor\AirSimNH.exe"
-AUTO_START_SIMULATION  = True   # Automatically launch the environment on start
-
-# AirSim window mode – keeps the sim in a resizable window so the web
-# dashboard remains accessible on the same screen.
-AIRSIM_WINDOWED        = True   # False = let Unreal use its default (usually fullscreen)
-AIRSIM_WINDOW_WIDTH    = 1280   # Window width  in pixels
-AIRSIM_WINDOW_HEIGHT   = 720    # Window height in pixels
-AIRSIM_WINDOW_X        = 0      # Window X position (pixels from left edge)
-AIRSIM_WINDOW_Y        = 0      # Window Y position (pixels from top edge)
-
-USE_AIRSIM_CAMERA  = True       # Use the drone's simulated camera instead of webcam
-AIRSIM_CAMERA_NAME = "0"        # "0" for front-facing, "3" for bottom-facing
-AIRSIM_IP          = '127.0.0.1'
-AIRSIM_PORT        = 41451
 FOLLOW_HEIGHT_PCT  = 0.6
 DESIRED_BBOX_HEIGHT = 150
-CONTROL_GAIN_P     = 0.5
 
 # HUD Settings
 SHOW_PREDICTIONS = True       # Show Kalman predicted boxes
