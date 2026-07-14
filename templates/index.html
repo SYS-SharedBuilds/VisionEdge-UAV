@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>VisionEdge UAV - Tactical Interface</title>
+    <title>AERIS COMMAND | UAV Multi-Object Tracking</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Geist:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
     <script id="tailwind-config">
         tailwind.config = {
@@ -13,53 +13,58 @@
             theme: {
                 extend: {
                     "colors": {
-                        "surface-variant": "#333539",
-                        "primary-container": "#00f2ff",
-                        "inverse-on-surface": "#2f3035",
-                        "on-tertiary-fixed": "#320047",
-                        "on-secondary-fixed": "#002116",
-                        "on-primary-container": "#006a71",
-                        "secondary": "#ffffff",
+                        "secondary-fixed-dim": "#c3c6cf",
+                        "surface-container-highest": "#26364a",
+                        "primary-container": "#00ff41",
+                        "on-tertiary-container": "#c40015",
                         "error": "#ffb4ab",
-                        "surface-container": "#1e2024",
-                        "surface-container-high": "#282a2e",
-                        "surface-container-low": "#1a1c20",
-                        "on-tertiary": "#520071",
-                        "on-secondary-container": "#007255",
-                        "on-tertiary-container": "#9b00d2",
-                        "tertiary-fixed": "#f8d8ff",
-                        "primary-fixed": "#74f5ff",
-                        "surface-container-lowest": "#0c0e12",
-                        "surface-container-highest": "#333539",
-                        "outline": "#849495",
-                        "surface-tint": "#00dbe7",
-                        "secondary-fixed": "#36ffc4",
-                        "surface-bright": "#37393e",
-                        "primary-fixed-dim": "#00dbe7",
+                        "on-surface-variant": "#b9ccb2",
+                        "surface-container-lowest": "#000f21",
+                        "on-secondary": "#2d3137",
+                        "tertiary-container": "#ffd2cd",
+                        "secondary-fixed": "#dfe2eb",
+                        "surface-container-high": "#1b2b3f",
                         "on-error-container": "#ffdad6",
-                        "surface": "#111318",
-                        "tertiary-fixed-dim": "#ecb2ff",
-                        "on-secondary": "#003828",
-                        "on-tertiary-fixed-variant": "#74009f",
-                        "inverse-primary": "#00696f",
-                        "primary": "#e1fdff",
-                        "on-surface": "#e2e2e8",
-                        "secondary-fixed-dim": "#00e1ab",
-                        "outline-variant": "#3a494b",
-                        "on-error": "#690005",
-                        "tertiary-container": "#f5ceff",
-                        "on-primary-fixed-variant": "#004f54",
-                        "inverse-surface": "#e2e2e8",
+                        "on-secondary-fixed-variant": "#43474e",
+                        "surface-container-low": "#0b1c30",
+                        "primary": "#ebffe2",
+                        "secondary-container": "#454950",
+                        "on-primary": "#003907",
+                        "inverse-primary": "#006e16",
+                        "on-tertiary": "#690006",
+                        "on-secondary-fixed": "#181c22",
+                        "surface-tint": "#00e639",
+                        "tertiary-fixed-dim": "#ffb4ab",
+                        "primary-fixed-dim": "#00e639",
+                        "primary-fixed": "#72ff70",
+                        "on-background": "#d3e4fe",
+                        "outline": "#84967e",
+                        "surface": "#031427",
+                        "inverse-on-surface": "#213145",
+                        "surface-variant": "#26364a",
+                        "on-primary-fixed-variant": "#00530e",
+                        "on-primary-container": "#007117",
+                        "surface-bright": "#2a3a4f",
+                        "on-secondary-container": "#b5b8c1",
+                        "inverse-surface": "#d3e4fe",
+                        "on-surface": "#d3e4fe",
                         "error-container": "#93000a",
-                        "on-primary": "#00363a",
-                        "on-background": "#e2e2e8",
-                        "on-secondary-fixed-variant": "#00513c",
-                        "on-primary-fixed": "#002022",
-                        "background": "#111318",
-                        "secondary-container": "#36ffc4",
-                        "on-surface-variant": "#b9cacb",
-                        "tertiary": "#fff5fc",
-                        "surface-dim": "#111318"
+                        "on-tertiary-fixed-variant": "#93000c",
+                        "on-tertiary-fixed": "#410002",
+                        "background": "#031427",
+                        "tertiary-fixed": "#ffdad6",
+                        "secondary": "#c3c6cf",
+                        "surface-dim": "#031427",
+                        "surface-container": "#102034",
+                        "outline-variant": "#3b4b37",
+                        "tertiary": "#fff7f6",
+                        "on-primary-fixed": "#002203",
+                        "on-error": "#690005",
+                        "track-red": "#FF3B30",
+                        "track-blue": "#007AFF",
+                        "track-green": "#34C759",
+                        "track-yellow": "#FFCC00",
+                        "track-magenta": "#AF52DE"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -69,344 +74,390 @@
                     },
                     "spacing": {
                         "unit": "4px",
-                        "panel-padding": "20px",
                         "gutter": "16px",
-                        "margin": "32px"
+                        "container-padding": "1rem",
+                        "grid-margin": "24px"
                     },
                     "fontFamily": {
-                        "data-secondary": ["JetBrains Mono"],
-                        "label-caps": ["Space Mono"],
-                        "tactical-title": ["Space Grotesk"],
-                        "data-primary": ["JetBrains Mono"],
-                        "display-header": ["Space Grotesk"],
-                        "status-code": ["Space Mono"]
+                        "status-code": ["JetBrains Mono"],
+                        "headline-md": ["Geist"],
+                        "body-base": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "data-value": ["JetBrains Mono"],
+                        "headline-md-mobile": ["Geist"],
+                        "data-label": ["JetBrains Mono"]
                     },
                     "fontSize": {
-                        "data-secondary": ["14px", {"lineHeight": "1.4", "letterSpacing": "0em", "fontWeight": "400"}],
-                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.15em", "fontWeight": "700"}],
-                        "tactical-title": ["24px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "data-primary": ["16px", {"lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "500"}],
-                        "display-header": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "status-code": ["10px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "400"}]
+                        "status-code": ["18px", {"lineHeight": "24px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "data-value": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "400"}],
+                        "headline-md-mobile": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "data-label": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}]
                     }
-                },
-            },
+                }
+            }
         }
     </script>
     <style>
-        .tactical-grid {
-            background-image: linear-gradient(to right, rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+        body {
+            background-color: #031427;
+            color: #d3e4fe;
+            overflow: hidden;
+            font-family: 'Geist', sans-serif;
         }
-        .scan-line {
-            background: linear-gradient(to bottom, transparent 50%, rgba(0, 242, 255, 0.02) 50%);
-            background-size: 100% 4px;
+        .hud-border {
+            border: 1px solid rgba(132, 150, 126, 0.3);
         }
-        .hex-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='28' height='49' viewBox='0 0 28 49' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9l10.99-6.35L25 17.9v12.7l-11.01 6.35L3 30.6V17.9z' fill='%2300f2ff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        .glow-green {
+            box-shadow: 0px 0px 8px rgba(0, 255, 65, 0.4);
         }
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .glow-amber {
+            box-shadow: 0px 0px 8px rgba(255, 204, 0, 0.4);
         }
-        .animate-marquee {
-            animation: marquee 20s linear infinite;
-        }
-        #video-stream {
+        .scanline {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: 2px;
+            background: rgba(0, 255, 65, 0.1);
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+        .track-box {
+            position: absolute;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+        .track-label {
+            position: absolute;
+            top: -24px;
+            left: -2px;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono';
+            color: white;
+            white-space: nowrap;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #84967e;
+            border-radius: 2px;
         }
     </style>
 </head>
-<body class="bg-background text-on-surface font-data-primary selection:bg-primary-container selection:text-on-primary-container overflow-hidden h-screen w-screen">
-    <!-- Environmental Layer: Tactical Grid -->
-    <div class="fixed inset-0 tactical-grid pointer-events-none z-0"></div>
-
-    <!-- HUD Background Camera Feed -->
-    <div class="fixed inset-0 z-0 overflow-hidden">
-        <img id="video-stream" class="grayscale brightness-[0.4] contrast-125" src="{{ url_for('video_feed') }}" alt="Live UAV Feed"/>
-        <div class="absolute inset-0 scan-line pointer-events-none"></div>
-    </div>
-
-    <!-- Top Navigation Shell -->
-    <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin py-unit bg-surface-container/20 backdrop-blur-xl border-b border-outline-variant/30">
+<body class="h-screen flex flex-col">
+    <!-- TopNavBar -->
+    <header class="w-full top-0 border-b border-outline-variant/30 bg-surface/80 dark:bg-surface/80 backdrop-blur-xl flex justify-between items-center px-grid-margin py-2 h-16 z-50">
         <div class="flex items-center gap-6">
-            <div class="font-tactical-title text-tactical-title font-bold tracking-tighter text-primary-container">VISION-EDGE UAV</div>
-            <div class="h-6 w-[1px] bg-outline-variant/30"></div>
-            <div class="flex flex-col">
-                <span class="font-label-caps text-status-code text-on-surface-variant">TRACKING STATUS</span>
-                <span class="font-status-code text-primary-container flex items-center gap-2">
-                    <span id="status-pulse" class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                    <span id="mission-status-text">STANDBY</span>
-                </span>
-            </div>
+            <h1 class="font-fontFamily-headline-md text-fontSize-headline-md font-bold text-primary-container tracking-tighter">VISIONEDGE-UAV</h1>
+            <nav class="hidden md:flex gap-6">
+                <a class="text-primary-container border-b-2 border-primary-container pb-1 font-fontFamily-status-code text-fontSize-status-code" href="#">MAP</a>
+                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">SENSORS</a>
+                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">PAYLOAD</a>
+                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">NETWORK</a>
+            </nav>
         </div>
-        <nav class="hidden md:flex items-center gap-8">
-            <button onclick="toggleTracking()" id="toggle-tracking-btn" class="px-6 py-2 border-2 border-primary-container text-primary-container font-label-caps font-bold hover:bg-primary-container hover:text-on-primary transition-all tracking-widest shadow-[0_0_10px_rgba(0,242,255,0.3)]">
-                TRACKING: ON
-            </button>
-            <a class="text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-colors" href="#">SENSORS</a>
-            <a class="text-on-surface-variant font-label-caps text-label-caps hover:text-primary transition-colors" href="#">COMMS</a>
-        </nav>
-        <div class="flex items-center gap-6 text-primary-container">
-            <div class="flex flex-col items-end">
-                <span id="uav-info-text" class="font-label-caps text-status-code text-on-surface-variant">DUAL-STREAM // AI TRACKER</span>
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
-                    <span class="material-symbols-outlined text-[18px]">battery_charging_full</span>
-                    <span class="material-symbols-outlined text-[18px]">settings_input_antenna</span>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-4 text-secondary text-xs font-data-label">
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">signal_cellular_alt</span>
+                    <span>SIGNAL: 98%</span>
                 </div>
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">battery_charging_full</span>
+                    <span>BAT: 84%</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px] text-primary-container" style="font-variation-settings: 'FILL' 1;">gps_fixed</span>
+                    <span>GPS: LOCK</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button class="px-4 py-1 border border-primary-container text-primary-container font-status-code text-[12px] hover:bg-primary-container hover:text-on-primary transition-all active:scale-95" id="toggle-tracking-btn" onclick="toggleTracking()">TRACKING: ON</button>
+            </div>
+            <div class="flex gap-3 text-secondary">
+                <span class="material-symbols-outlined cursor-pointer hover:text-primary">settings</span>
+                <span class="material-symbols-outlined cursor-pointer hover:text-primary">notifications</span>
+                <span class="material-symbols-outlined cursor-pointer hover:text-primary">account_circle</span>
             </div>
         </div>
     </header>
-
-    <!-- Side Navigation Shell (Left) -->
-    <aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 pb-8 bg-surface-container-lowest/30 backdrop-blur-2xl border-r border-outline-variant/20 w-64">
-        <!-- Operator header - fixed, never scrolls -->
-        <div class="px-6 mb-4 shrink-0">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 rounded-full border border-primary-container/30 overflow-hidden">
-                    <img alt="Operator" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9nqI1WjNYnc-otXvmelTPf1R10hHWL0VxyUF09hWf_IxfAQ8pJ46Pr4l6_CmkpXe7-q4lPy6KnQLs-GJLJiR4piMN8ZRgcavTCdIUGOlQWcenrLXtXd8UaQkKz33tjhM5TW0KI4i_mfouHZD_ny7ftcUbldSKpdyl5v7Sl0wkI6cLHRqt3VEn9IP9zt_dD_Hl6jUUcaY5cy_t5f1JtIHTXii_R9zbUNUDImgviTVINjyjErzosvJp9-33c3zuipvYTs1zDOGhECDs"/>
+    
+    <div class="flex flex-1 overflow-hidden">
+        <!-- SideNavBar -->
+        <aside class="h-full w-20 hover:w-64 transition-all duration-300 border-r border-outline-variant/20 bg-surface-container-low/90 backdrop-blur-md flex flex-col z-40 group overflow-hidden">
+            <div class="flex items-center gap-4 px-6 py-8">
+                <div class="w-10 h-10 rounded bg-primary-container flex items-center justify-center">
+                    <span class="material-symbols-outlined text-surface">flight</span>
                 </div>
-                <div>
-                    <h3 class="font-label-caps text-on-surface text-label-caps">OPERATOR_01</h3>
-                    <p class="font-status-code text-status-code text-on-surface-variant">STRAT_COMMAND</p>
+                <div class="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    <p class="font-fontFamily-headline-md-mobile text-fontSize-headline-md-mobile text-primary font-bold">ALPHA-9</p>
+                    <p class="font-fontFamily-data-label text-[10px] text-secondary">MQ-9 REAPER</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Scrollable section: nav + target category -->
-        <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
-            <nav class="space-y-1">
-                <div class="bg-primary-container/20 text-primary-container border-l-4 border-primary-container flex items-center gap-4 px-6 py-3 cursor-pointer">
-                    <span class="material-symbols-outlined">altitude</span>
-                    <span class="font-data-primary text-data-primary">TELEMETRY</span>
+            <nav class="flex-1">
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-primary-container bg-surface-container-highest/50 border-r-4 border-primary-container cursor-pointer">
+                    <span class="material-symbols-outlined">videocam</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">SURVEILLANCE</span>
                 </div>
-                <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
-                    <span class="material-symbols-outlined">speed</span>
-                    <span class="font-data-primary text-data-primary">VECTORS</span>
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
+                    <span class="material-symbols-outlined">insights</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">TELEMETRY</span>
                 </div>
-                <div class="text-on-surface-variant flex items-center gap-4 px-6 py-3 opacity-70 hover:bg-surface-variant/30 hover:opacity-100 cursor-pointer transition-colors">
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
                     <span class="material-symbols-outlined">radar</span>
-                    <span class="font-data-primary text-data-primary">SIGNAL</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">THREATS</span>
+                </div>
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
+                    <span class="material-symbols-outlined">history</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">ARCHIVE</span>
+                </div>
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
+                    <span class="material-symbols-outlined">terminal</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">DIAGNOSTICS</span>
                 </div>
             </nav>
-
-            <div class="px-6 py-4 border-t border-outline-variant/30 mt-4">
-                <h4 class="font-label-caps text-on-surface-variant mb-3">TARGET CATEGORY</h4>
-                <div class="flex flex-col gap-2">
-                    <button onclick="setTargetCategory('person', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                        PERSON / PEDESTRIAN
-                    </button>
-                    <button onclick="setTargetCategory('vehicle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                        VEHICLE / TRUCK
-                    </button>
-                    <button onclick="setTargetCategory('bicycle', this)" class="target-btn text-left px-4 py-2 bg-surface-container/50 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container font-data-primary text-[13px] transition-colors">
-                        BICYCLE / MOTORCYCLE
-                    </button>
-                    <button onclick="setTargetCategory('all', this)" class="target-btn text-left px-4 py-2 bg-primary-container/20 border border-primary-container text-primary-container font-data-primary text-[13px] transition-colors active-target">
-                        ALL OBJECTS
-                    </button>
+            <div class="px-4 py-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="w-full bg-primary-container text-on-primary font-bold py-2 rounded text-xs glow-green">TARGET LOCK</button>
+            </div>
+            <div class="border-t border-outline-variant/10">
+                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-error transition-all cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest">LOGOUT</span>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- RTB button removed -->
-    </aside>
-
-    <!-- Content Canvas -->
-    <main class="ml-64 mt-20 p-3 grid gap-3 overflow-hidden" style="grid-template-columns: 210px 1fr 210px; height: calc(100vh - 118px); align-items: stretch;">
-        <!-- Left Wing: Telemetry Panels -->
-        <!-- Left Wing: Telemetry Panels (scrollable) -->
-        <div class="col-span-3 flex flex-col gap-gutter overflow-y-auto overflow-x-hidden" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
-            <!-- Performance Stats Glass Card -->
-            <div class="flex-1 bg-surface-container-lowest/40 backdrop-blur-md border border-primary-container/20 p-panel-padding relative overflow-hidden group">
-                <div class="hex-pattern absolute inset-0 pointer-events-none opacity-20"></div>
-                <h4 class="font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant/30 pb-2 mb-4">PERFORMANCE METRICS</h4>
-                <div class="space-y-6">
-                    <div class="space-y-2">
-                        <div class="flex justify-between font-status-code text-status-code">
-                            <span>FPS (STREAM A)</span>
-                            <span id="fps-a-value" class="text-primary-container">0</span>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between font-status-code text-status-code">
-                            <span>FPS (STREAM B)</span>
-                            <span id="fps-b-value" class="text-primary-container">0</span>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <div class="flex justify-between font-status-code text-status-code">
-                            <span>LATENCY</span>
-                            <span id="latency-val" class="text-secondary-fixed">--MS</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-8 relative aspect-video border border-outline-variant/20 flex items-center justify-center">
-                    <div class="absolute inset-0 flex items-center justify-center opacity-30">
-                        <svg class="w-32 h-32 animate-pulse" viewbox="0 0 100 100">
-                            <circle cx="50" cy="50" fill="none" r="40" stroke="#00f2ff" stroke-dasharray="2 2" stroke-width="0.5"></circle>
-                            <rect fill="none" height="10" stroke="#00f2ff" stroke-width="1" width="40" x="30" y="45"></rect>
-                            <path d="M50,10 L50,90 M10,50 L90,50" stroke="#00f2ff" stroke-width="0.5"></path>
-                        </svg>
-                    </div>
-                    <div class="absolute bottom-2 left-2 font-status-code text-status-code text-primary-container/60">CUDA: ACTIVE</div>
-                </div>
-            </div>
-            <!-- Tactical Radar -->
-            <div class="h-48 bg-surface-container-lowest/40 backdrop-blur-md border border-primary-container/20 relative flex items-center justify-center">
-                <div class="relative w-36 h-36">
-                    <div class="absolute inset-0 rounded-full border border-primary-container/20"></div>
-                    <div class="absolute inset-0 rounded-full border-t border-primary-container animate-[spin_4s_linear_infinite]"></div>
-                    <div class="absolute top-1/2 left-0 w-full h-[1px] bg-primary-container/20"></div>
-                    <div class="absolute left-1/2 top-0 w-[1px] h-full bg-primary-container/20"></div>
-                </div>
-                <div class="absolute top-2 left-2 font-label-caps text-status-code opacity-50">RADAR_SWEEP</div>
-            </div>
-        </div>
-
-        <!-- Center: Dual Camera Feeds -->
-        <div class="flex flex-col relative min-w-0 h-full gap-2">
-            <!-- Feed A -->
-            <div class="relative h-1/2 bg-black border border-primary-container/30 overflow-hidden flex-1">
-                <img id="stream-a" src="{{ url_for('video_feed', stream_id='A') }}" class="w-full h-full object-cover" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-background">
+            <div class="flex-1 flex gap-px bg-outline-variant/10">
                 
-                <div class="absolute top-3 left-3 z-20 flex items-center gap-2 bg-black/50 px-2 py-1 rounded">
-                    <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                    <span class="font-status-code text-status-code text-primary-container">STREAM A // CAM-01</span>
-                </div>
-            </div>
-            
-            <!-- Feed B -->
-            <div class="relative h-1/2 bg-black border border-primary-container/30 overflow-hidden flex-1">
-                <img id="stream-b" src="{{ url_for('video_feed', stream_id='B') }}" class="w-full h-full object-cover" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
-                
-                <div class="absolute top-3 left-3 z-20 flex items-center gap-2 bg-black/50 px-2 py-1 rounded">
-                    <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
-                    <span class="font-status-code text-status-code text-primary-container">STREAM B // CAM-02</span>
-                </div>
-            </div>
-            
-            <!-- Global Overlay -->
-            <div class="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-3">
-                <div class="flex justify-end">
-                    <div class="bg-surface-container-highest/70 backdrop-blur-lg p-3 border border-primary-container/30">
-                        <div class="flex flex-col gap-1 font-status-code text-status-code">
-                            <div class="flex justify-between gap-4">
-                                <span class="text-on-surface-variant">CUDA</span>
-                                <span id="cuda-status" class="text-primary-container">ACTIVE</span>
+                <!-- Central Video Viewport -->
+                <section class="flex-[3] relative bg-[#0D1117] overflow-hidden group">
+                    <div class="scanline"></div>
+                    
+                    <!-- DUAL VIDEO STREAMS INSTEAD OF PLACEHOLDER -->
+                    <div class="absolute inset-0 flex flex-col md:flex-row gap-0.5 bg-outline-variant/20 z-0">
+                        <!-- Feed A -->
+                        <div class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-r border-outline-variant/20">
+                            <img id="stream-a" src="{{ url_for('video_feed', stream_id='A') }}" class="w-full h-full object-contain" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
+                            <div class="absolute top-4 left-4 flex items-center gap-2 bg-surface-container-lowest/80 border border-outline-variant/50 backdrop-blur-md px-3 py-1 rounded">
+                                <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                                <span class="font-status-code text-[12px] text-primary-container tracking-widest">CAM-01 / STREAM A</span>
+                            </div>
+                        </div>
+                        <!-- Feed B -->
+                        <div class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-l border-outline-variant/20">
+                            <img id="stream-b" src="{{ url_for('video_feed', stream_id='B') }}" class="w-full h-full object-contain" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
+                            <div class="absolute top-4 left-4 flex items-center gap-2 bg-surface-container-lowest/80 border border-outline-variant/50 backdrop-blur-md px-3 py-1 rounded">
+                                <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                                <span class="font-status-code text-[12px] text-primary-container tracking-widest">CAM-02 / STREAM B</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
 
-
-        <!-- Right Wing: AI Analytics (scrollable) -->
-        <div class="col-span-3 flex flex-col gap-gutter overflow-y-auto overflow-x-hidden" style="scrollbar-width:thin;scrollbar-color:rgba(0,242,255,0.2) transparent;">
-            <div class="flex-1 bg-surface-container-lowest/40 backdrop-blur-md border border-on-tertiary-container/30 p-panel-padding relative overflow-hidden group">
-                <h4 class="font-label-caps text-label-caps text-on-surface-variant border-b border-outline-variant/30 pb-2 mb-4">AI ANALYTICS</h4>
-                <div class="space-y-4">
-                    <div class="p-3 bg-surface-container-low/60 border-l-2 border-primary-container">
-                        <div class="text-status-code text-on-surface-variant font-label-caps">ACTIVE TARGETS</div>
-                        <div id="active-targets-val" class="text-tactical-title font-bold text-primary-container">0</div>
-                    </div>
-                    <div class="space-y-3 font-status-code text-status-code">
-                        <div class="flex justify-between border-b border-outline-variant/10 pb-1">
-                            <span class="text-on-surface-variant">OCCLUSION RECOVERY</span>
-                            <span id="occlusion-status" class="text-secondary-fixed">ENABLED</span>
-                        </div>
-                        <div class="flex justify-between border-b border-outline-variant/10 pb-1">
-                            <span class="text-on-surface-variant">PREDICTION CONF.</span>
-                            <span id="pred-conf-val" class="text-primary-container">0%</span>
+                    <!-- HUD Overlays -->
+                    <div class="absolute inset-4 border border-outline-variant/20 pointer-events-none z-10">
+                        <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary-container"></div>
+                        <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary-container"></div>
+                        <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-container"></div>
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary-container"></div>
+                        <!-- Crosshair -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-30">
+                            <div class="w-16 h-px bg-primary-container"></div>
+                            <div class="h-16 w-px bg-primary-container"></div>
+                            <div class="w-32 h-32 border border-primary-container rounded-full"></div>
                         </div>
                     </div>
-                    <div class="mt-4 h-24 border border-outline-variant/20 relative">
-                        <div class="absolute inset-0 bg-gradient-to-t from-primary-container/10 to-transparent"></div>
-                        <svg class="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                            <polyline fill="none" points="0,60 20,40 40,55 60,20 80,30 100,10" stroke="#00f2ff" stroke-width="2"></polyline>
-                        </svg>
+
+                    <!-- Telemetry HUD Overlay (Top Left) - Moved slightly down to avoid video stream labels -->
+                    <div class="absolute top-16 left-4 space-y-2 pointer-events-none z-20 hidden md:block">
+                        <div class="bg-surface-container-low/60 backdrop-blur-md px-3 py-1 border-l-2 border-primary-container">
+                            <p class="text-[10px] font-data-label text-secondary">LATITUDE</p>
+                            <p class="text-sm font-data-value text-primary-container">34° 03' 08" N</p>
+                        </div>
+                        <div class="bg-surface-container-low/60 backdrop-blur-md px-3 py-1 border-l-2 border-primary-container">
+                            <p class="text-[10px] font-data-label text-secondary">LONGITUDE</p>
+                            <p class="text-sm font-data-value text-primary-container">118° 14' 34" W</p>
+                        </div>
+                        <div class="bg-surface-container-low/60 backdrop-blur-md px-3 py-1 border-l-2 border-primary-container">
+                            <p class="text-[10px] font-data-label text-secondary">FPS</p>
+                            <p class="text-sm font-data-value text-primary-container" id="fps-val">--</p>
+                        </div>
                     </div>
-                </div>
+                </section>
+                
+                <!-- Right Panel: Track Registry -->
+                <section class="w-96 bg-surface-container-low flex flex-col border-l border-outline-variant/20 z-10">
+                    <div class="p-4 border-b border-outline-variant/20 flex justify-between items-center">
+                        <h2 class="font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest text-primary">TRACK REGISTRY</h2>
+                        <span class="material-symbols-outlined text-secondary text-sm">filter_list</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar">
+                        <table class="w-full text-left font-data-value">
+                            <thead class="sticky top-0 bg-surface-container-high text-[10px] text-secondary uppercase border-b border-outline-variant/30">
+                                <tr>
+                                    <th class="px-4 py-2 font-data-label">ID</th>
+                                    <th class="px-2 py-2 font-data-label">Status</th>
+                                    <th class="px-2 py-2 font-data-label">Frames</th>
+                                    <th class="px-4 py-2 font-data-label">Last Seen</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/10">
+                                <!-- Row 001 -->
+                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+                                    <td class="px-4 py-3 text-primary-container font-bold">001</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">2451</td>
+                                    <td class="px-4 py-3 text-secondary">0.0s</td>
+                                </tr>
+                                <!-- Row 002 -->
+                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+                                    <td class="px-4 py-3 text-primary-container font-bold">002</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">1892</td>
+                                    <td class="px-4 py-3 text-secondary">0.0s</td>
+                                </tr>
+                                <!-- Row 003 -->
+                                <tr class="bg-track-yellow/10 hover:bg-track-yellow/20 transition-colors cursor-pointer group">
+                                    <td class="px-4 py-3 text-track-yellow font-bold">003</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-track-yellow/20 text-track-yellow text-[10px] border border-track-yellow/30">Tentative</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">42</td>
+                                    <td class="px-4 py-3 text-secondary">0.2s</td>
+                                </tr>
+                                <!-- Row 004 -->
+                                <tr class="bg-track-yellow/10 hover:bg-track-yellow/20 transition-colors cursor-pointer group">
+                                    <td class="px-4 py-3 text-track-yellow font-bold">004</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-track-yellow/20 text-track-yellow text-[10px] border border-track-yellow/30">Tentative</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">18</td>
+                                    <td class="px-4 py-3 text-secondary">0.5s</td>
+                                </tr>
+                                <!-- Row 005 -->
+                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
+                                    <td class="px-4 py-3 text-primary-container font-bold">005</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">412</td>
+                                    <td class="px-4 py-3 text-secondary">0.0s</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Activity Log -->
+                    <div class="h-48 border-t border-outline-variant/20 bg-surface-container-lowest p-3 font-status-code text-[11px] custom-scrollbar overflow-y-auto Activity Log">
+                        <p class="text-secondary opacity-50 mb-1">[14:22:31] SYSTEM: Initializing Multi-Object Tracking...</p>
+                        <p class="text-primary-container mb-1">[14:22:32] INFO: Uplink established with Alpha-9</p>
+                        <p class="text-primary-container mb-1">[14:22:35] TRACK: ID 001 state Confirmed</p>
+                        <p class="text-primary-container mb-1">[14:22:36] TRACK: ID 002 state Confirmed</p>
+                        <p class="text-track-yellow mb-1">[14:24:12] ALERT: New signal detected. Initializing ID 003</p>
+                        <p class="text-track-yellow mb-1">[14:24:15] ALERT: New signal detected. Initializing ID 004</p>
+                        <p class="text-on-tertiary-container animate-pulse">[14:24:20] WARNING: Track 008 lost signal persistence</p>
+                    </div>
+                </section>
             </div>
-            <!-- Mini Map Placeholder -->
-            <div class="h-48 bg-surface-container-lowest/40 backdrop-blur-md border border-outline-variant/30 relative overflow-hidden">
-                <img class="w-full h-full object-cover opacity-60 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy5ao1XPloNw7OYm7lXrjm89oVArjSyDvU8YxLdtfwnLCOhvobLXXvOr-eRiCHMCBPnGMshR59pyTLtGTd1JHE23s-1urPKT4A4Hihhs8-xMbGSkI14sJzJQ0en-_rEV-ziPrjjnLGpo_TAnFQ22djVVm5oS_llZqvS3gtzCZSNvOveIi6VI8naz_uSnrfj5FHyl8w0jzWRAzkhIWg_iLuy3Z5r_bya8YuO97Z5mqsj1yyb5b-CV45ZAl7tGjdQit1x-RPbYRRFI6Q"/>
-                <div class="absolute top-0 left-0 w-full p-2 bg-surface-container-highest/80 border-b border-outline-variant/30 flex justify-between items-center">
-                    <span class="font-label-caps text-status-code">SECTOR_OVERVIEW</span>
-                    <span class="font-status-code text-status-code text-primary-container">35.6° N, 139.6° E</span>
-                </div>
+        </main>
+    </div>
+    <!-- BottomNavBar -->
+    <footer class="fixed bottom-0 w-full flex justify-between items-center px-grid-margin bg-surface-container-lowest z-50 h-10 border-t border-outline-variant/40 font-status-code text-[13px]">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-secondary">sync_problem</span>
+                <span class="text-secondary-fixed-dim">Identity Switches: 0</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-primary-container">gps_fixed</span>
+                <span class="text-primary-container font-bold" id="active-tracks-counter">Active Tracks: 5</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px] text-on-tertiary-container">explore</span>
+                <span class="text-secondary-fixed-dim">Lost Tracks: 1</span>
             </div>
         </div>
-    </main>
-
-    <footer class="fixed bottom-0 w-full z-50 flex items-center px-4 py-2 bg-surface-container-lowest/80 backdrop-blur-md border-t border-error/20 gap-4" style="min-height:44px;">
-        <!-- Log stream - takes available space, clips overflow -->
-        <div class="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
-            <span class="font-label-caps text-on-surface-variant shrink-0 text-[10px] tracking-widest">LOG</span>
-            <div class="overflow-hidden flex-1">
-                <div class="flex gap-8 animate-marquee whitespace-nowrap">
-                    <span class="font-status-code text-secondary-fixed flex items-center gap-2">SYSTEM LINK ESTABLISHED</span>
-                    <span class="font-status-code text-on-surface-variant">UAV-77: OPTICAL LINK STABLE</span>
-                    <span class="font-status-code text-primary-container">WAITING FOR COMMAND...</span>
-                    <span class="font-status-code text-secondary-fixed flex items-center gap-2">SYSTEM LINK ESTABLISHED</span>
-                    <span class="font-status-code text-on-surface-variant">UAV-77: OPTICAL LINK STABLE</span>
-                    <span class="font-status-code text-primary-container">WAITING FOR COMMAND...</span>
-                </div>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 text-secondary/60">
+                <span class="material-symbols-outlined text-[16px]">location_on</span>
+                <span>LAT: 34.05</span>
+            </div>
+            <div class="flex items-center gap-2 text-secondary/60">
+                <span class="material-symbols-outlined text-[16px]">explore</span>
+                <span>LON: -118.24</span>
+            </div>
+            <div class="text-primary font-bold">
+                STREAM: LIVE
             </div>
         </div>
-
-        <!-- Key reference panel removed -->
-        <span class="font-status-code text-status-code text-on-surface-variant shrink-0">AES-256</span>
     </footer>
-
-
+    
     <script>
+        // Track box logic from original design snippet
+        document.addEventListener('mousemove', (e) => {
+            const boxes = document.querySelectorAll('.track-box');
+            boxes.forEach((box, index) => {
+                const shiftX = (e.clientX - window.innerWidth / 2) / (50 + index * 20);
+                const shiftY = (e.clientY - window.innerHeight / 2) / (50 + index * 20);
+                box.style.transform = `translate(${shiftX}px, ${shiftY}px)`;
+            });
+        });
+
+        const logContainer = document.querySelector('.Activity\\ Log');
+        setInterval(() => {
+            if (Math.random() > 0.8) {
+                const p = document.createElement('p');
+                const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+                p.className = 'text-primary-container mb-1 opacity-80';
+                p.innerText = `[${time}] TELEMETRY: Frame data verified for ID 00${Math.floor(Math.random() * 5) + 1}`;
+            }
+        }, 3000);
+
+        // API interaction logic
         function updateTelemetry() {
             fetch('/telemetry')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('mission-status-text').textContent = data.system_status;
-                    document.getElementById('uav-info-text').textContent = `DUAL-STREAM // ${data.tracker} AI`;
-                    
-                    document.getElementById('latency-val').textContent = data.latency_ms + 'MS';
-                    document.getElementById('cuda-status').textContent = data.cuda_active ? 'ACTIVE' : 'INACTIVE';
-                    
-                    document.getElementById('occlusion-status').textContent = data.occlusion_recovery ? 'ENABLED' : 'DISABLED';
-                    document.getElementById('pred-conf-val').textContent = data.pred_confidence_pct + '%';
-
                     let total_targets = 0;
                     if (data.streams) {
                         if (data.streams['A']) {
-                            document.getElementById('fps-a-value').textContent = data.streams['A'].fps;
+                            document.getElementById('fps-val').textContent = data.streams['A'].fps;
                             total_targets += data.streams['A'].active_targets;
                         }
                         if (data.streams['B']) {
-                            document.getElementById('fps-b-value').textContent = data.streams['B'].fps;
                             total_targets += data.streams['B'].active_targets;
                         }
                     }
                     
-                    document.getElementById('active-targets-val').textContent = total_targets;
-
-                    const pulse = document.getElementById('status-pulse');
+                    document.getElementById('active-tracks-counter').textContent = `Active Tracks: ${total_targets}`;
                     const toggleBtn = document.getElementById('toggle-tracking-btn');
                     
                     if (data.tracking_enabled) {
-                        pulse.className = 'w-2 h-2 rounded-full bg-primary-container animate-pulse';
-                        if (toggleBtn) toggleBtn.textContent = 'TRACKING: ON';
                         if (toggleBtn) {
+                            toggleBtn.textContent = 'TRACKING: ON';
                             toggleBtn.classList.remove('border-yellow-400', 'text-yellow-400', 'shadow-[0_0_10px_rgba(250,204,21,0.3)]');
                             toggleBtn.classList.add('border-primary-container', 'text-primary-container', 'shadow-[0_0_10px_rgba(0,242,255,0.3)]');
                         }
                     } else {
-                        pulse.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-pulse';
-                        if (toggleBtn) toggleBtn.textContent = 'TRACKING: OFF';
                         if (toggleBtn) {
+                            toggleBtn.textContent = 'TRACKING: OFF';
                             toggleBtn.classList.add('border-yellow-400', 'text-yellow-400', 'shadow-[0_0_10px_rgba(250,204,21,0.3)]');
                             toggleBtn.classList.remove('border-primary-container', 'text-primary-container', 'shadow-[0_0_10px_rgba(0,242,255,0.3)]');
                         }
@@ -422,25 +473,6 @@
                     console.log(data.message);
                     updateTelemetry();
                 });
-        }
-
-        function setTargetCategory(category, element) {
-            document.querySelectorAll('.target-btn').forEach(btn => {
-                btn.classList.remove('bg-primary-container/20', 'border-primary-container', 'active-target');
-                btn.classList.add('bg-surface-container/50', 'border-primary-container/30');
-            });
-            element.classList.remove('bg-surface-container/50', 'border-primary-container/30');
-            element.classList.add('bg-primary-container/20', 'border-primary-container', 'active-target');
-
-            fetch('/set_target', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ category: category })
-            })
-            .then(res => res.json())
-            .then(data => console.log("Target updated:", data));
         }
 
         setInterval(updateTelemetry, 2000);
