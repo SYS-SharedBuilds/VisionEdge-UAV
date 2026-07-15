@@ -68,9 +68,9 @@ class AdaptiveDetector:
             self.model = RFDETR(model_size)
             self.is_rfdetr_pkg = True
         except ImportError:
-            print("[WARN] rfdetr package not found, falling back to Ultralytics YOLOv8n for real-time performance")
-            from ultralytics import YOLO
-            self.model = YOLO('yolov8n.pt')
+            print("[WARN] rfdetr package not found, falling back to Ultralytics RT-DETR for local inference")
+            from ultralytics import RTDETR
+            self.model = RTDETR('rtdetr-l.pt')
             self.is_rfdetr_pkg = False
 
     def track(self, frame, persist=True, tracker="bytetrack.yaml"):
