@@ -239,7 +239,5 @@ This project is for educational and research purposes. Please respect the licens
 - **Deep SORT**: For the multi-object tracking algorithm
 - **OpenCV**: For computer vision capabilities
 - **Flask**: For the web framework
-
 ---
-
 **Happy Object Tracking!**
