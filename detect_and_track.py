@@ -63,10 +63,15 @@ class TargetSelector:
 class AdaptiveDetector:
     def __init__(self, model_size='RFDETRBase', confidence_threshold=0.5):
         self.confidence_threshold = confidence_threshold
-        print("[INFO] Loading Ultralytics YOLOv8n for real-time performance")
-        from ultralytics import YOLO
-        self.model = YOLO('yolov8n.pt')
-        self.is_rfdetr_pkg = False
+        try:
+            from rfdetr import RFDETR
+            self.model = RFDETR(model_size)
+            self.is_rfdetr_pkg = True
+        except ImportError:
+            print("[WARN] rfdetr package not found, falling back to Ultralytics YOLOv8n for real-time performance")
+            from ultralytics import YOLO
+            self.model = YOLO('yolov8n.pt')
+            self.is_rfdetr_pkg = False
 
     def track(self, frame, persist=True, tracker="bytetrack.yaml"):
         if not self.is_rfdetr_pkg:
