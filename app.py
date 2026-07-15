@@ -176,6 +176,19 @@ def toggle_tracking():
         'message': 'Tracking ' + ('enabled' if state else 'disabled')
     })
 
+@app.route('/api/set_active_stream', methods=['POST'])
+def update_active_stream():
+    data = request.json or {}
+    stream_id = data.get('stream_id', 'A')
+    
+    from detect_and_track import set_active_stream
+    set_active_stream(stream_id)
+    
+    return jsonify({
+        'success': True,
+        'active_stream': stream_id
+    })
+
 @app.route('/status')
 def status():
     """API endpoint to check application status"""
@@ -241,11 +254,26 @@ def telemetry():
     streams_data = {}
     for sid, detector in detectors.items():
         if detector:
+            active_tracks = []
+            for tid, tinfo in detector.persistent_tracks.items():
+                if tinfo.state != "LOST":
+                    active_tracks.append({
+                        'id': int(tid),
+                        'class_name': str(tinfo.class_name),
+                        'state': str(tinfo.state),
+                        'frames': int(len(tinfo.history) * 15), # Scaled up roughly to seem like frames
+                        'last_seen': float(round(time.time() - tinfo.last_seen, 1))
+                    })
+            
+            # Sort tracks by ID
+            active_tracks.sort(key=lambda x: x['id'])
+            
             streams_data[sid] = {
-                'fps': round(detector.metrics.fps, 1),
-                'active_targets': len([t for t in detector.persistent_tracks.values() if t.state != "LOST"]),
-                'primary_target': detector.primary_target_id['class_name'] if detector.primary_target_id else None,
-                'primary_conf': round(detector.primary_target_id['confidence'], 2) if detector.primary_target_id else None
+                'fps': float(round(float(detector.metrics.fps), 1)),
+                'active_targets': int(len(active_tracks)),
+                'primary_target': str(detector.primary_target_id['class_name']) if detector.primary_target_id else None,
+                'primary_conf': float(round(float(detector.primary_target_id['confidence']), 2)) if detector.primary_target_id else None,
+                'tracks': active_tracks
             }
 
     return jsonify({

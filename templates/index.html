@@ -164,9 +164,6 @@
             <h1 class="font-fontFamily-headline-md text-fontSize-headline-md font-bold text-primary-container tracking-tighter">VISIONEDGE-UAV</h1>
             <nav class="hidden md:flex gap-6">
                 <a class="text-primary-container border-b-2 border-primary-container pb-1 font-fontFamily-status-code text-fontSize-status-code" href="#">MAP</a>
-                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">SENSORS</a>
-                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">PAYLOAD</a>
-                <a class="text-secondary dark:text-secondary hover:text-primary-fixed-dim transition-colors duration-200 font-fontFamily-status-code text-fontSize-status-code" href="#">NETWORK</a>
             </nav>
         </div>
         <div class="flex items-center gap-6">
@@ -185,6 +182,7 @@
                 </div>
             </div>
             <div class="flex gap-2">
+                <button class="px-4 py-1 border border-primary-container text-primary-container font-status-code text-[12px] hover:bg-primary-container hover:text-on-primary transition-all active:scale-95" id="switch-cam-btn" onclick="switchCamera()">VIEW: CAM-01</button>
                 <button class="px-4 py-1 border border-primary-container text-primary-container font-status-code text-[12px] hover:bg-primary-container hover:text-on-primary transition-all active:scale-95" id="toggle-tracking-btn" onclick="toggleTracking()">TRACKING: ON</button>
             </div>
             <div class="flex gap-3 text-secondary">
@@ -216,18 +214,7 @@
                     <span class="material-symbols-outlined">insights</span>
                     <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">TELEMETRY</span>
                 </div>
-                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
-                    <span class="material-symbols-outlined">radar</span>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">THREATS</span>
-                </div>
-                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
-                    <span class="material-symbols-outlined">history</span>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">ARCHIVE</span>
-                </div>
-                <div class="group/item flex items-center gap-4 px-6 py-4 text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high transition-all cursor-pointer">
-                    <span class="material-symbols-outlined">terminal</span>
-                    <span class="opacity-0 group-hover:opacity-100 transition-opacity font-fontFamily-data-label text-fontSize-data-label uppercase tracking-widest whitespace-nowrap">DIAGNOSTICS</span>
-                </div>
+
             </nav>
             <div class="px-4 py-6 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button class="w-full bg-primary-container text-on-primary font-bold py-2 rounded text-xs glow-green">TARGET LOCK</button>
@@ -246,12 +233,10 @@
                 
                 <!-- Central Video Viewport -->
                 <section class="flex-[3] relative bg-[#0D1117] overflow-hidden group">
-                    <div class="scanline"></div>
-                    
                     <!-- DUAL VIDEO STREAMS INSTEAD OF PLACEHOLDER -->
                     <div class="absolute inset-0 flex flex-col md:flex-row gap-0.5 bg-outline-variant/20 z-0">
                         <!-- Feed A -->
-                        <div class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-r border-outline-variant/20">
+                        <div id="stream-a-container" class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-r border-outline-variant/20">
                             <img id="stream-a" src="{{ url_for('video_feed', stream_id='A') }}" class="w-full h-full object-contain" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
                             <div class="absolute top-4 left-4 flex items-center gap-2 bg-surface-container-lowest/80 border border-outline-variant/50 backdrop-blur-md px-3 py-1 rounded">
                                 <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
@@ -259,26 +244,12 @@
                             </div>
                         </div>
                         <!-- Feed B -->
-                        <div class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-l border-outline-variant/20">
+                        <div id="stream-b-container" class="relative flex-1 bg-black overflow-hidden flex flex-col justify-center border-l border-outline-variant/20 hidden">
                             <img id="stream-b" src="{{ url_for('video_feed', stream_id='B') }}" class="w-full h-full object-contain" onerror="setTimeout(()=>{ this.src=this.src.split('?')[0]+'?t='+Date.now(); }, 2000)"/>
                             <div class="absolute top-4 left-4 flex items-center gap-2 bg-surface-container-lowest/80 border border-outline-variant/50 backdrop-blur-md px-3 py-1 rounded">
                                 <span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
                                 <span class="font-status-code text-[12px] text-primary-container tracking-widest">CAM-02 / STREAM B</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- HUD Overlays -->
-                    <div class="absolute inset-4 border border-outline-variant/20 pointer-events-none z-10">
-                        <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary-container"></div>
-                        <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary-container"></div>
-                        <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary-container"></div>
-                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary-container"></div>
-                        <!-- Crosshair -->
-                        <div class="absolute inset-0 flex items-center justify-center opacity-30">
-                            <div class="w-16 h-px bg-primary-container"></div>
-                            <div class="h-16 w-px bg-primary-container"></div>
-                            <div class="w-32 h-32 border border-primary-container rounded-full"></div>
                         </div>
                     </div>
 
@@ -315,52 +286,8 @@
                                     <th class="px-4 py-2 font-data-label">Last Seen</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-outline-variant/10">
-                                <!-- Row 001 -->
-                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
-                                    <td class="px-4 py-3 text-primary-container font-bold">001</td>
-                                    <td class="px-2 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
-                                    </td>
-                                    <td class="px-2 py-3 text-secondary">2451</td>
-                                    <td class="px-4 py-3 text-secondary">0.0s</td>
-                                </tr>
-                                <!-- Row 002 -->
-                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
-                                    <td class="px-4 py-3 text-primary-container font-bold">002</td>
-                                    <td class="px-2 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
-                                    </td>
-                                    <td class="px-2 py-3 text-secondary">1892</td>
-                                    <td class="px-4 py-3 text-secondary">0.0s</td>
-                                </tr>
-                                <!-- Row 003 -->
-                                <tr class="bg-track-yellow/10 hover:bg-track-yellow/20 transition-colors cursor-pointer group">
-                                    <td class="px-4 py-3 text-track-yellow font-bold">003</td>
-                                    <td class="px-2 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-track-yellow/20 text-track-yellow text-[10px] border border-track-yellow/30">Tentative</span>
-                                    </td>
-                                    <td class="px-2 py-3 text-secondary">42</td>
-                                    <td class="px-4 py-3 text-secondary">0.2s</td>
-                                </tr>
-                                <!-- Row 004 -->
-                                <tr class="bg-track-yellow/10 hover:bg-track-yellow/20 transition-colors cursor-pointer group">
-                                    <td class="px-4 py-3 text-track-yellow font-bold">004</td>
-                                    <td class="px-2 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-track-yellow/20 text-track-yellow text-[10px] border border-track-yellow/30">Tentative</span>
-                                    </td>
-                                    <td class="px-2 py-3 text-secondary">18</td>
-                                    <td class="px-4 py-3 text-secondary">0.5s</td>
-                                </tr>
-                                <!-- Row 005 -->
-                                <tr class="hover:bg-surface-variant/30 transition-colors cursor-pointer group">
-                                    <td class="px-4 py-3 text-primary-container font-bold">005</td>
-                                    <td class="px-2 py-3">
-                                        <span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary-container text-[10px] border border-primary-container/30">Confirmed</span>
-                                    </td>
-                                    <td class="px-2 py-3 text-secondary">412</td>
-                                    <td class="px-4 py-3 text-secondary">0.0s</td>
-                                </tr>
+                            <tbody id="track-registry-body" class="divide-y divide-outline-variant/10">
+                                <!-- Tracks will be dynamically inserted here -->
                             </tbody>
                         </table>
                     </div>
@@ -436,14 +363,56 @@
                 .then(res => res.json())
                 .then(data => {
                     let total_targets = 0;
+                    let tracks_to_render = [];
                     if (data.streams) {
                         if (data.streams['A']) {
-                            document.getElementById('fps-val').textContent = data.streams['A'].fps;
+                            if (activeCam === 'A') {
+                                document.getElementById('fps-val').textContent = data.streams['A'].fps;
+                                tracks_to_render = data.streams['A'].tracks || [];
+                            }
                             total_targets += data.streams['A'].active_targets;
                         }
                         if (data.streams['B']) {
+                            if (activeCam === 'B') {
+                                document.getElementById('fps-val').textContent = data.streams['B'].fps;
+                                tracks_to_render = data.streams['B'].tracks || [];
+                            }
                             total_targets += data.streams['B'].active_targets;
                         }
+                    }
+                    
+                    // Render track registry table dynamically
+                    const tbody = document.getElementById('track-registry-body');
+                    if (tbody && data.tracking_enabled) {
+                        tbody.innerHTML = '';
+                        tracks_to_render.forEach(track => {
+                            const isConfirmed = track.state !== 'OCCLUDED' && track.state !== 'LOST';
+                            const trClass = isConfirmed ? 
+                                'hover:bg-surface-variant/30 transition-colors cursor-pointer group' : 
+                                'bg-track-yellow/10 hover:bg-track-yellow/20 transition-colors cursor-pointer group';
+                            const idClass = isConfirmed ? 'text-primary-container' : 'text-track-yellow';
+                            const badgeBg = isConfirmed ? 'bg-primary-container/20' : 'bg-track-yellow/20';
+                            const badgeTextClass = isConfirmed ? 'text-primary-container' : 'text-track-yellow';
+                            const badgeBorder = isConfirmed ? 'border-primary-container/30' : 'border-track-yellow/30';
+                            const statusText = isConfirmed ? 'Confirmed' : 'Tentative';
+                            
+                            tbody.innerHTML += `
+                                <tr class="${trClass}">
+                                    <td class="px-4 py-3 ${idClass} font-bold">${String(track.id).padStart(3, '0')}</td>
+                                    <td class="px-2 py-3">
+                                        <span class="px-2 py-0.5 rounded-full ${badgeBg} ${badgeTextClass} text-[10px] border ${badgeBorder}">${statusText}</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-secondary">${track.frames}</td>
+                                    <td class="px-4 py-3 text-secondary">${track.last_seen}s</td>
+                                </tr>
+                            `;
+                        });
+                        
+                        if (tracks_to_render.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-secondary text-center text-sm">Scanning for targets...</td></tr>`;
+                        }
+                    } else if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-secondary text-center text-sm">Tracking disabled.</td></tr>`;
                     }
                     
                     document.getElementById('active-tracks-counter').textContent = `Active Tracks: ${total_targets}`;
@@ -473,6 +442,31 @@
                     console.log(data.message);
                     updateTelemetry();
                 });
+        }
+
+        let activeCam = 'A';
+        function switchCamera() {
+            const btn = document.getElementById('switch-cam-btn');
+            const streamA = document.getElementById('stream-a-container');
+            const streamB = document.getElementById('stream-b-container');
+            if (activeCam === 'A') {
+                activeCam = 'B';
+                btn.textContent = 'VIEW: CAM-02';
+                streamA.classList.add('hidden');
+                streamB.classList.remove('hidden');
+            } else {
+                activeCam = 'A';
+                btn.textContent = 'VIEW: CAM-01';
+                streamB.classList.add('hidden');
+                streamA.classList.remove('hidden');
+            }
+            
+            // Notify backend about camera switch so tracking follows the active camera
+            fetch('/api/set_active_stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stream_id: activeCam })
+            });
         }
 
         setInterval(updateTelemetry, 2000);

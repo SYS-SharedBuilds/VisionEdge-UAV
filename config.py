@@ -14,9 +14,9 @@ JPEG_QUALITY = 85
 STREAM_FPS = 30
 
 # Video Settings
-VIDEO_SOURCES = ["media/demo_a.mp4", "media/demo_b.mp4"]
-CAMERA_WIDTH = 1280           # Target processing width (auto-scaled for performance)
-CAMERA_HEIGHT = 720           # Target processing height
+VIDEO_SOURCES = ["4791734-hd_1920_1080_30fps.mp4", "5021555-hd_1920_1080_30fps.mp4"]
+CAMERA_WIDTH = 640           # Target processing width (auto-scaled for performance)
+CAMERA_HEIGHT = 360           # Target processing height
 CAMERA_FPS = 30               # Target FPS
 
 # RF-DETR Model Settings
@@ -27,7 +27,7 @@ CONFIDENCE_THRESHOLD = 0.5    # Minimum confidence for detections (0.0 to 1.0)
 # Tracking Parameters
 MAX_AGE = 50                  # Frames to keep a lost track
 N_INIT = 3                    # Consecutive frames to confirm a track
-DATASET_MODE = 'VISDRONE'      # 'VISDRONE', 'UAVDT', or 'COCO'
+DATASET_MODE = 'COCO'      # 'VISDRONE', 'UAVDT', or 'COCO'
 TRACKER_TYPE = 'bytetrack'    # 'bytetrack' or 'botsort'
 REID_ENABLED = True           # Enable re-identification after occlusion
 

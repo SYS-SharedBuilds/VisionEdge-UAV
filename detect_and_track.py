@@ -22,6 +22,11 @@ import math
 # Global state for tracking toggle
 tracking_enabled = threading.Event()
 tracking_enabled.set()
+active_stream = "A"
+
+def set_active_stream(stream_id):
+    global active_stream
+    active_stream = stream_id
 
 class TargetSelector:
     """Selects the best target from active tracks based on priority and size."""
@@ -63,9 +68,9 @@ class AdaptiveDetector:
             self.model = RFDETR(model_size)
             self.is_rfdetr_pkg = True
         except ImportError:
-            print("[WARN] rfdetr package not found, falling back to Ultralytics RT-DETR")
-            from ultralytics import RTDETR
-            self.model = RTDETR('rtdetr-l.pt')
+            print("[WARN] rfdetr package not found, falling back to Ultralytics YOLOv8n for real-time performance")
+            from ultralytics import YOLO
+            self.model = YOLO('yolov8n.pt')
             self.is_rfdetr_pkg = False
 
     def track(self, frame, persist=True, tracker="bytetrack.yaml"):
@@ -501,7 +506,8 @@ class ObjectDetectorTracker:
         """
         h, w = frame.shape[:2]
         
-        if not tracking_enabled.is_set():
+        global active_stream
+        if not tracking_enabled.is_set() or self.stream_id != active_stream:
             # If tracking is disabled, return raw frame without running RF-DETR
             return frame.copy()
 
@@ -518,7 +524,7 @@ class ObjectDetectorTracker:
             clss = results[0].boxes.cls.int().cpu().tolist()
             
             for box, track_id, conf, cls in zip(boxes, ids, confs, clss):
-                class_name = self.class_names[cls]
+                class_name = self.class_names[cls] if cls < len(self.class_names) else f"class_{cls}"
                 track_data = {
                     'id': track_id,
                     'bbox': box,
@@ -592,10 +598,15 @@ class ObjectDetectorTracker:
         """
         print(f"[{self.stream_id}] Entering surveillance processing mode...")
 
+        fps = self.cap.get(cv2.CAP_PROP_FPS) or 30.0
+        frame_time = 1.0 / fps
+
         while self.is_running:
             if self.cap is None:
                 time.sleep(0.1)
                 continue
+            
+            start_t = time.time()
             
             ret, frame = self.cap.read()
             
@@ -628,7 +639,17 @@ class ObjectDetectorTracker:
                     if 'frame' in locals() and frame is not None:
                         self.current_frame = frame
             
-            time.sleep(0.005) # Max performance
+            # Real-time video playback synchronization
+            elapsed = time.time() - start_t
+            frames_to_skip = int(elapsed / frame_time)
+            
+            if frames_to_skip > 0:
+                for _ in range(frames_to_skip):
+                    self.cap.grab()
+            else:
+                sleep_time = frame_time - elapsed
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
         
         print("Video processing loop ended")
     
