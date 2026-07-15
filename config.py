@@ -4,9 +4,11 @@ Configuration file for Dual-Video RF-DETR Object Detection and Tracking
 Modify these settings to customize the application behavior.
 """
 
+import os
+
 # Server Settings
 HOST = '0.0.0.0'
-PORT = 5000
+PORT = int(os.environ.get('PORT', 5000))
 DEBUG = False
 
 # Streaming Settings
