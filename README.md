@@ -1,4 +1,4 @@
-# YOLOv8 Live Object Detection & Tracking
+#Live Object Detection & Tracking
 
 A real-time web application for object detection and tracking using YOLOv8 and Deep SORT algorithms. This application streams live webcam feed with detected objects, bounding boxes, confidence scores, and unique tracking IDs.
 
